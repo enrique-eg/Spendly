@@ -282,6 +282,18 @@ Because of **Row Level Security**, the API automatically returns only the record
 
 ---
 
+## Configuración / Variables de entorno
+
+Para que la aplicación cliente funcione correctamente necesitas pedir y colocar en la raíz del proyecto un archivo llamado `.env.local` (o `.env`) con las siguientes variables de entorno:
+
+```
+VITE_SUPABASE_URL=https://<tu-proyecto>.supabase.co
+VITE_SUPABASE_ANON_KEY=<tu-anon-key>
+```
+
+Reinicia el servidor de desarrollo después de añadir o modificar estas variables. No subas `.env.local` al repositorio — añádelo a `.gitignore`. En producción configura las mismas variables en tu proveedor de despliegue (Vercel, Netlify, etc.). Si la clave pública (`ANON_KEY`) ya se expuso, rota la clave desde el panel de Supabase.
+
+
 # Security
 
 The project uses **Row Level Security (RLS)**.
