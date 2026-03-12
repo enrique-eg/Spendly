@@ -3,7 +3,7 @@ import { Account } from '../models/Account'
 
 export async function getAccounts() {
   try {
-    const { data, error } = await supabase.from<Account>('accounts').select('*')
+    const { data, error } = await supabase.from<Account, Account>('accounts').select('*')
     return { data, error }
   } catch (error) {
     return { data: null, error }
@@ -13,7 +13,7 @@ export async function getAccounts() {
 export async function getAccountById(id: string) {
   try {
     const { data, error } = await supabase
-      .from<Account>('accounts')
+      .from<Account, Account>('accounts')
       .select('*')
       .eq('id', id)
       .maybeSingle()
@@ -26,7 +26,7 @@ export async function getAccountById(id: string) {
 export async function createAccount(account: Partial<Account>) {
   try {
     const { data, error } = await supabase
-      .from<Account>('accounts')
+      .from<Account, Account>('accounts')
       .insert(account)
       .select()
       .single()
@@ -39,7 +39,7 @@ export async function createAccount(account: Partial<Account>) {
 export async function updateAccount(id: string, account: Partial<Account>) {
   try {
     const { data, error } = await supabase
-      .from<Account>('accounts')
+      .from<Account, Account>('accounts')
       .update(account)
       .eq('id', id)
       .select()
@@ -52,7 +52,7 @@ export async function updateAccount(id: string, account: Partial<Account>) {
 
 export async function deleteAccount(id: string) {
   try {
-    const { data, error } = await supabase.from<Account>('accounts').delete().eq('id', id)
+    const { data, error } = await supabase.from<Account, Account>('accounts').delete().eq('id', id)
     return { data, error }
   } catch (error) {
     return { data: null, error }
