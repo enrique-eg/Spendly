@@ -97,3 +97,20 @@
 .register-mode .auth-form-container{
   transform: translateX(120%);
 }
+
+.password-rules{
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.password-rules p{
+  margin: 3px 0;
+}
+
+.valid{
+  color: #2ecc71;
+}
+
+.invalid{
+  color: #e74c3c;
+}
