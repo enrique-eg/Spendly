@@ -1,9 +1,9 @@
 import supabase from './supabaseClient'
-import { Category } from '../models/Category'
+import type { Category } from '../models/Category'
 
 export async function getCategories() {
   try {
-    const { data, error } = await supabase.from<Category>('categories').select('*')
+    const { data, error } = await supabase.from('categories').select('*')
     return { data, error }
   } catch (error) {
     return { data: null, error }
@@ -13,7 +13,7 @@ export async function getCategories() {
 export async function getCategoryById(id: string) {
   try {
     const { data, error } = await supabase
-      .from<Category>('categories')
+      .from('categories')
       .select('*')
       .eq('id', id)
       .maybeSingle()
@@ -26,7 +26,7 @@ export async function getCategoryById(id: string) {
 export async function createCategory(category: Partial<Category>) {
   try {
     const { data, error } = await supabase
-      .from<Category>('categories')
+      .from('categories')
       .insert(category)
       .select()
       .single()
@@ -39,7 +39,7 @@ export async function createCategory(category: Partial<Category>) {
 export async function updateCategory(id: string, category: Partial<Category>) {
   try {
     const { data, error } = await supabase
-      .from<Category>('categories')
+      .from('categories')
       .update(category)
       .eq('id', id)
       .select()
@@ -52,7 +52,7 @@ export async function updateCategory(id: string, category: Partial<Category>) {
 
 export async function deleteCategory(id: string) {
   try {
-    const { data, error } = await supabase.from<Category>('categories').delete().eq('id', id)
+    const { data, error } = await supabase.from('categories').delete().eq('id', id)
     return { data, error }
   } catch (error) {
     return { data: null, error }

@@ -1,9 +1,9 @@
 import supabase from './supabaseClient'
-import { Subscription } from '../models/Subscription'
+import type { Subscription } from '../models/Subscription'
 
 export async function getSubscriptions() {
   try {
-    const { data, error } = await supabase.from<Subscription>('subscriptions').select('*')
+    const { data, error } = await supabase.from('subscriptions').select('*')
     return { data, error }
   } catch (error) {
     return { data: null, error }
@@ -13,7 +13,7 @@ export async function getSubscriptions() {
 export async function getSubscriptionById(id: string) {
   try {
     const { data, error } = await supabase
-      .from<Subscription>('subscriptions')
+      .from('subscriptions')
       .select('*')
       .eq('id', id)
       .maybeSingle()
@@ -26,7 +26,7 @@ export async function getSubscriptionById(id: string) {
 export async function createSubscription(subscription: Partial<Subscription>) {
   try {
     const { data, error } = await supabase
-      .from<Subscription>('subscriptions')
+      .from('subscriptions')
       .insert(subscription)
       .select()
       .single()
@@ -39,7 +39,7 @@ export async function createSubscription(subscription: Partial<Subscription>) {
 export async function updateSubscription(id: string, subscription: Partial<Subscription>) {
   try {
     const { data, error } = await supabase
-      .from<Subscription>('subscriptions')
+      .from('subscriptions')
       .update(subscription)
       .eq('id', id)
       .select()
@@ -52,7 +52,7 @@ export async function updateSubscription(id: string, subscription: Partial<Subsc
 
 export async function deleteSubscription(id: string) {
   try {
-    const { data, error } = await supabase.from<Subscription>('subscriptions').delete().eq('id', id)
+    const { data, error } = await supabase.from('subscriptions').delete().eq('id', id)
     return { data, error }
   } catch (error) {
     return { data: null, error }
