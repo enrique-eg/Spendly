@@ -1,0 +1,139 @@
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+
+.register-container{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: radial-gradient(circle at top, #0f3d2d, #062e24);
+  padding:20px;
+}
+
+
+.register-card{
+  background:#0c3b2e;
+  padding:40px;
+  border-radius:20px;
+  width:100%;
+  max-width:380px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  color:white;
+}
+
+
+.register-card h2{
+  margin:0;
+  font-size:24px;
+}
+
+.register-card p{
+  margin:0 0 10px;
+  color:#9ca3af;
+  font-size:14px;
+}
+
+.register-card input{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:#09281f;
+  color:white;
+  outline:none;
+  transition:0.2s;
+}
+
+.register-card input::placeholder{
+  color:#6b7280;
+}
+
+.register-card input:focus{
+  border:1px solid #22c55e;
+}
+
+
+.register-card button{
+  padding:12px;
+  background:#22c55e;
+  border:none;
+  border-radius:10px;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.register-card button:hover{
+  background:#16a34a;
+}
+
+
+.login-link{
+  text-align:center;
+  font-size:14px;
+  color:#9ca3af;
+}
+
+.login-link a{
+  color:#22c55e;
+  text-decoration:none;
+}
+
+.login-link a:hover{
+  text-decoration:underline;
+}
+
+
+.password-rules{
+  margin-top:5px;
+  margin-bottom:10px;
+  font-size:12px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.password-rules p{
+  margin:0;
+}
+
+.password-rules .invalid{
+  color:#ef4444 !important;
+}
+
+.password-rules .valid{
+  color:#22c55e !important;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(-5px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+
+@media (max-width: 600px){
+
+  .register-container{
+    align-items:flex-start;
+    padding-top:40px;
+  }
+
+  .register-card{
+    background:transparent;
+    padding:0;
+  }
+
+}
+
