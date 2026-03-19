@@ -4,12 +4,22 @@ import { register } from "../../services/authService"
 import Swal from "sweetalert2"
 import { Link } from "react-router-dom"
 
+import userIcon from "../../assets/user.png"
+import mailIcon from "../../assets/mail.png"
+import lockIcon from "../../assets/padlock.png"
+import reloadIcon from "../../assets/reload.png"
+import viewIcon from "../../assets/view.png"
+import hideIcon from "../../assets/hide.png"
+
 export default function SignUp(){
 
   const [name,setName] = useState("")
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
   const [confirmPassword,setConfirmPassword] = useState("")
+
+  const [showPassword,setShowPassword] = useState(false)
+  const [showConfirmPassword,setShowConfirmPassword] = useState(false)
 
   const passwordChecks = {
     length: password.length >= 8,
@@ -34,7 +44,8 @@ export default function SignUp(){
     ){
       Swal.fire({
         icon:"error",
-        title:"Weak password"
+        title:"Weak password",
+        text:"Password must meet all requirements"
       })
       return
     }
@@ -56,21 +67,84 @@ export default function SignUp(){
         <h2>Join Spendly</h2>
         <p>Start your journey to better financial health today.</p>
 
-        <input type="text" placeholder="John Doe" value={name} onChange={(e)=>setName(e.target.value)} />
-        <input type="email" placeholder="name@example.com" value={email} onChange={(e)=>setEmail(e.target.value)} />
+        {/* FULL NAME */}
+        <div className="input-group">
+          <label>Full Name</label>
+          <div className="input-box">
+            <img src={userIcon} className="input-icon" />
+            <input
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e)=>setName(e.target.value)}
+            />
+          </div>
+        </div>
 
-        <input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} />
+        {/* EMAIL */}
+        <div className="input-group">
+          <label>Email Address</label>
+          <div className="input-box">
+            <img src={mailIcon} className="input-icon" />
+            <input
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e)=>setEmail(e.target.value)}
+            />
+          </div>
+        </div>
 
+        {/* PASSWORD */}
+        <div className="input-group">
+          <label>Password</label>
+          <div className="input-box">
+            <img src={lockIcon} className="input-icon" />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e)=>setPassword(e.target.value)}
+            />
+            <img
+              src={showPassword ? hideIcon : viewIcon}
+              className="input-icon right"
+              onClick={()=>setShowPassword(!showPassword)}
+            />
+          </div>
+        </div>
+
+       
         {password && (
           <div className="password-rules">
-            <p className={passwordChecks.length ? "valid" : "invalid"}>At least 8 characters</p>
-            <p className={passwordChecks.uppercase ? "valid" : "invalid"}>One uppercase letter</p>
-            <p className={passwordChecks.number ? "valid" : "invalid"}>One number</p>
-            <p className={passwordChecks.special ? "valid" : "invalid"}>One special character</p>
+            <p className={passwordChecks.length ? "valid" : "invalid"}>
+              • At least 8 characters
+            </p>
+            <p className={passwordChecks.uppercase ? "valid" : "invalid"}>
+              • One uppercase letter
+            </p>
+            <p className={passwordChecks.number ? "valid" : "invalid"}>
+              • One number
+            </p>
+            <p className={passwordChecks.special ? "valid" : "invalid"}>
+              • One special character
+            </p>
           </div>
         )}
 
-        <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e)=>setConfirmPassword(e.target.value)} />
+        
+        <div className="input-group">
+          <label>Confirm Password</label>
+          <div className="input-box">
+            <img src={reloadIcon} className="input-icon" />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e)=>setConfirmPassword(e.target.value)}
+            />
+          </div>
+        </div>
 
         <button type="submit">Sign Up</button>
 
