@@ -1,0 +1,125 @@
+body{
+  margin:0;
+  font-family: system-ui;
+}
+
+.login-container{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: radial-gradient(circle at top, #0f3d2d, #062e24);
+  padding:20px;
+}
+
+.login-wrapper{
+  width:100%;
+  max-width:420px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.logo-box{
+  width:80px;
+  height:80px;
+  border-radius:20px;
+  background:#14532d;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:25px;
+}
+
+.logo-box img{
+  width:40px;
+  filter: brightness(0) invert(1);
+}
+
+/* ocultar desktop */
+.desktop-logo{
+  display:none;
+}
+
+.login-card{
+  width:100%;
+  background:#0c3b2e;
+  padding:35px 30px;
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  color:white;
+}
+
+.login-card input{
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#082c22;
+  color:white;
+}
+
+.login-card button{
+  padding:12px;
+  background:#22c55e;
+  border:none;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+}
+
+.secondary-btn{
+  text-align:center;
+  padding:12px;
+  border-radius:10px;
+  background:#14532d;
+  color:white;
+  text-decoration:none;
+}
+
+.divider{
+  text-align:center;
+  color:#6b7280;
+}
+
+.forgot-password{
+  font-size:12px;
+  color:#22c55e;
+  text-align:right;
+}
+
+.legal{
+  font-size:12px;
+  text-align:center;
+  color:#6b7280;
+}
+
+/* 💻 DESKTOP */
+@media (min-width:768px){
+
+  .mobile-logo{
+    display:none;
+  }
+
+  .desktop-logo{
+    display:flex;
+    margin:0 auto 20px;
+  }
+
+}
+
+/* 📱 MOBILE */
+@media (max-width:600px){
+
+  .login-container{
+    align-items:flex-start;
+    padding-top:40px;
+  }
+
+  .login-card{
+    background:transparent;
+    padding:0;
+  }
+
+}

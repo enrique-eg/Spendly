@@ -1,0 +1,64 @@
+.register-container{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: radial-gradient(circle at top, #0f3d2d, #062e24);
+  padding:20px;
+}
+
+.register-card{
+  background:#0c3b2e;
+  padding:40px;
+  border-radius:20px;
+  width:100%;
+  max-width:380px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  color:white;
+}
+
+.register-card input{
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#09281f;
+  color:white;
+}
+
+.register-card button{
+  padding:12px;
+  background:#22c55e;
+  border:none;
+  border-radius:10px;
+  color:white;
+}
+
+/* 🔐 reglas */
+.password-rules{
+  font-size:12px;
+}
+
+.password-rules .valid{
+  color:#22c55e;
+}
+
+.password-rules .invalid{
+  color:#ef4444;
+}
+
+/* 📱 MOBILE */
+@media (max-width:600px){
+
+  .register-container{
+    align-items:flex-start;
+    padding-top:40px;
+  }
+
+  .register-card{
+    background:transparent;
+    padding:0;
+  }
+
+}

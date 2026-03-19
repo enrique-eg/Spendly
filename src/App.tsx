@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import SignInPage from "./pages/sign-in/sign-in"
+import SignIn from "./pages/sign-in/sign-in"
+import SignUp from "./pages/sign-up/sign-up"
 import { AuthProvider } from "./context/AuthContext"
 
 function App() {
@@ -9,9 +10,9 @@ function App() {
       <BrowserRouter>
         <Routes>
 
-          <Route path="/" element={<SignInPage />} />
-
-          <Route path="/sign-in" element={<SignInPage />} />
+          <Route path="/" element={<SignIn />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
 
         </Routes>
       </BrowserRouter>
