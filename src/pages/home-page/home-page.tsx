@@ -3,6 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 import { getTransactionsByUser, createTransaction } from '../../services/transactionsService';
 import { getAccountsByUser } from '../../services/accountsService';
 import { getCurrencies } from '../../services/currenciesService';
+import { getUserProfile } from '../../services/profilesService';
+import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import type { Transaction } from '../../models/Transaction';
 import './home-page.css';
 
@@ -14,6 +16,8 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [defaultCurrency, setDefaultCurrency] = useState('USD');
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -31,6 +35,7 @@ export default function HomePage() {
       const { data: transData, error: transError } = await getTransactionsByUser(user.id);
       const { data: accData, error: accError } = await getAccountsByUser(user.id);
       const { data: currData, error: currError } = await getCurrencies();
+      const { data: profileData, error: profileError } = await getUserProfile(user.id);
       
       if (transError) {
         setError('Error al cargar las transacciones');
@@ -50,6 +55,10 @@ export default function HomePage() {
         if (currData.length > 0) {
           setFormData(prev => ({ ...prev, currency: currData[0].code }));
         }
+      }
+
+      if (!profileError && profileData?.default_currency) {
+        setDefaultCurrency(profileData.default_currency);
       }
 
       setLoading(false);
@@ -128,6 +137,9 @@ export default function HomePage() {
           </div>
           <h1>Spendly</h1>
         </div>
+        <button className="settings-btn" onClick={() => setShowSettings(true)}>
+          <span className="material-symbols-outlined">settings</span>
+        </button>
       </header>
 
       <main className="home-main">
@@ -282,6 +294,14 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      <SettingsSidebar 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        userId={user?.id || ''}
+        defaultCurrency={defaultCurrency}
+        onDefaultCurrencyChange={setDefaultCurrency}
+      />
     </div>
   );
 }
