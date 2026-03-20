@@ -4,7 +4,7 @@ import { getTransactionsByUser, createTransaction } from '../../services/transac
 import { getAccountsByUser } from '../../services/accountsService';
 import { getCurrencies } from '../../services/currenciesService';
 import { getUserProfile } from '../../services/profilesService';
-import { getExchangeRate } from '../../services/exchangeRatesService';
+//import { getExchangeRate } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import type { Transaction } from '../../models/Transaction';
 import './home-page.css';
@@ -88,7 +88,7 @@ export default function HomePage() {
 
     let amount = parseFloat(formData.amount);
     let currency = formData.currency;
-
+/*
     // Si la moneda es diferente a la default, convertir automáticamente
     if (currency !== defaultCurrency) {
       const { data: rateData, error: rateError } = await getExchangeRate(currency, defaultCurrency);
@@ -99,7 +99,7 @@ export default function HomePage() {
       amount = amount * rateData.rate;
       currency = defaultCurrency;
     }
-
+*/
     const newTransaction: Partial<Transaction> = {
       user_id: user.id,
       type: formData.type,

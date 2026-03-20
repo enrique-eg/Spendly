@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+/*import { supabase } from './supabaseClient';
 
 export const getExchangeRate = async (fromCurrency: string, toCurrency: string) => {
   if (fromCurrency === toCurrency) {
@@ -13,4 +13,4 @@ export const getExchangeRate = async (fromCurrency: string, toCurrency: string) 
     .single();
 
   return { data, error };
-};
+};*/
