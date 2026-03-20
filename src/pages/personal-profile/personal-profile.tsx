@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react"
 import "./personal-profile.css"
 import userIcon from "../../assets/user.png"
+import lockIcon from "../../assets/padlock.png"
+import bellIcon from "../../assets/notification-bell.png"
+import reloadIcon from "../../assets/reload.png"
+import premiumIcon from "../../assets/premium-quality.png"
+
 import { useAuth } from "../../context/AuthContext"
 import supabase from "../../services/supabaseClient"
+import { useNavigate } from "react-router-dom"
 
 export default function Profile(){
 
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   const [image, setImage] = useState<string | null>(null)
   const [profile, setProfile] = useState<any>(null)
@@ -31,12 +38,13 @@ export default function Profile(){
 
     fetchProfile()
   }, [user])
+
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !user) return
 
     const fileExt = file.name.split('.').pop()
-    const fileName = `${user.id}/${user.id}.${fileExt}` // ✅ carpeta = uid
+    const fileName = `${user.id}/${user.id}.${fileExt}`
 
     const { error: uploadError } = await supabase.storage
       .from("avatars")
@@ -53,36 +61,30 @@ export default function Profile(){
 
     const publicUrl = data.publicUrl
 
-    const { error: updateError } = await supabase
+    await supabase
       .from("profiles")
       .update({ avatar_url: publicUrl })
       .eq("id", user.id)
 
-    if (updateError) {
-      console.error(updateError)
-      return
-    }
-
     setImage(publicUrl)
   }
 
-
-
+  async function handleLogout(){
+    await supabase.auth.signOut()
+    navigate("/sign-in")
+  }
 
   return(
     <div className="profile-container">
 
-      {/* HEADER */}
       <div className="profile-header">
         <h2>Account</h2>
         <span className="gear">⚙️</span>
       </div>
 
-      
       <div className="profile-user">
 
         <label className="avatar">
-
           <input
             type="file"
             accept="image/*"
@@ -91,52 +93,67 @@ export default function Profile(){
           />
 
           <img 
+            className="avatar-img"
             src={image || profile?.avatar_url || userIcon} 
           />
 
           <span className="verified">✔</span>
-
         </label>
 
-        <h3>{profile?.username || "Juan Pérez"}</h3>
-        <p>{user?.email || "email@example.com"}</p>
+        <h3>{profile?.username || "Usuario"}</h3>
+        <p>{user?.email}</p>
 
       </div>
 
-      {}
+      {/* PREMIUM */}
       <div className="premium-card">
-        <h4>⭐ Upgrade to Premium Plan</h4>
+        <h4 className="premium-title">
+          <img src={premiumIcon} className="icon" />
+          Upgrade to Premium Plan
+        </h4>
+
         <p>
           Get exclusive insights, unlimited budget categories,
           and advanced AI-powered forecasting tools.
         </p>
+
         <button>Upgrade Now</button>
       </div>
 
-      {}
+      {/* SETTINGS */}
       <div className="settings">
 
         <p className="section-title">SECURITY & PRIVACY</p>
 
         <div className="setting-item">
-          <span>🔒 Change Password</span>
+          <span className="setting-left">
+            <img src={lockIcon} className="icon" />
+            Change Password
+          </span>
           <span>›</span>
         </div>
 
         <div className="setting-item">
-          <span>🧬 Biometric Login</span>
+          <span className="setting-left">
+            <img src={reloadIcon} className="icon" />
+            Biometric Login
+          </span>
           <div className="toggle"></div>
         </div>
 
         <div className="setting-item">
-          <span>🔔 Notification Settings</span>
+          <span className="setting-left">
+            <img src={bellIcon} className="icon" />
+            Notification Settings
+          </span>
           <span>›</span>
         </div>
 
       </div>
 
-      {/* LOGOUT */}
-      <button className="logout">Log Out</button>
+      <button className="logout" onClick={handleLogout}>
+        Log Out
+      </button>
 
     </div>
   )
