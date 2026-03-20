@@ -1,9 +1,11 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import "../../components/auth/auth.css"
 import { login, register } from "../../services/authService"
 import Swal from "sweetalert2"
 
 export default function SignInPage(){
+  const navigate = useNavigate()
 
   const [mode,setMode] = useState<"login" | "register">("login")
   const [email,setEmail] = useState("")
@@ -23,11 +25,22 @@ export default function SignInPage(){
     e.preventDefault()
 
     const { error } = await login(email,password)
-    Swal.fire({
-      icon: error ? "error" : "success",
-      title: error ? "Login failed" : "Login successful",
-      text: error ? error.message : "Welcome back!"
-    })
+    
+    if (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Login failed",
+        text: error.message
+      })
+    } else {
+      Swal.fire({
+        icon: "success",
+        title: "Login successful",
+        text: "Welcome back!"
+      }).then(() => {
+        navigate('/home')
+      })
+    }
   }
 
   // REGISTER

@@ -1,9 +1,13 @@
 import supabase from './supabaseClient'
 import type { Transaction } from '../models/Transaction'
 
-export async function getTransactions() {
+export async function getTransactionsByUser(userId: string) {
   try {
-    const { data, error } = await supabase.from('transactions').select('*')
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
     return { data, error }
   } catch (error) {
     return { data: null, error }

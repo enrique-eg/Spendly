@@ -58,3 +58,15 @@ export async function deleteAccount(id: string) {
     return { data: null, error }
   }
 }
+
+export async function getAccountsByUser(userId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('user_id', userId)
+    return { data, error }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
