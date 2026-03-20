@@ -1,18 +1,24 @@
+import {createChat, enviarMensaje} from "./IO.js";
+
 let currentChat = null;
 
-// BOTÓN: Comenzar chat
-document.getElementById("startChatBtn").addEventListener("click", async () => {
-    currentChat = await createChat();
-});
 
 // BOTÓN: Enviar mensaje
 document.getElementById("sendBtn").addEventListener("click", async () => {
     const input = document.getElementById("userInput");
     const mensaje = input.value;
 
-    if (!mensaje || !currentChat) return;
+    if (!mensaje || !currentChat) {
+        currentChat = await createChat();
+    }
 
-    await sendMessage(currentChat, mensaje);
+    await enviarMensaje(currentChat, mensaje);
 
     input.value = ""; // limpiar input
+});
+
+document.getElementById("userInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        document.getElementById("sendBtn").click();
+    }
 });
