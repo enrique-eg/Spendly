@@ -1,0 +1,78 @@
+/* Subscriptions page styles - follow app palette */
+.subscriptions-page {
+  padding: 1rem;
+  color: var(--text-primary);
+}
+
+.subs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.subs-stats {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+.subs-main {
+  margin-top: 1rem;
+}
+
+.subs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sub-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  border-radius: 1rem;
+}
+
+.sub-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 0.75rem;
+  background: rgba(23,207,84,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.sub-body { flex: 1; }
+.sub-top { display:flex; justify-content:space-between; align-items:center }
+.sub-name { font-weight:700 }
+.sub-amount { font-weight:700; color: var(--primary) }
+.sub-meta { color: var(--text-secondary); font-size:0.9rem }
+
+.sub-actions { display:flex; gap:0.5rem }
+.subs-fab { bottom: 5.5rem }
+
+/* Reuse modal classes from home-page.css; tweaks if needed */
