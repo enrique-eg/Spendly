@@ -1,0 +1,27 @@
+.payment-container{
+  min-height:100vh;
+  background:#062e24;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  color:white;
+}
+
+.payment-container input{
+  padding:10px;
+  width:250px;
+  border-radius:8px;
+  border:none;
+}
+
+.payment-container button{
+  padding:12px;
+  width:250px;
+  background:#22c55e;
+  border:none;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+}
