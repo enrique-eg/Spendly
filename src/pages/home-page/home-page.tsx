@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getTransactionsByUser, createTransaction } from '../../services/transactionsService';
+import { getTransactionsByUser, createTransaction, updateTransaction, deleteTransaction } from '../../services/transactionsService';
 import { getAccountsByUser } from '../../services/accountsService';
 import { getCurrencies } from '../../services/currenciesService';
 import { getUserProfile } from '../../services/profilesService';
@@ -17,6 +17,10 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState<any>({});
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [defaultCurrency, setDefaultCurrency] = useState('USD');
   const [formData, setFormData] = useState({
@@ -129,6 +133,42 @@ export default function HomePage() {
     }
   };
 
+  const handleUpdateTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editFormData?.id) return;
+    const updated: Partial<Transaction> = {
+      description: editFormData.description,
+      amount: parseFloat(editFormData.amount),
+      type: editFormData.type,
+      currency: editFormData.currency,
+      transaction_date: new Date(editFormData.transaction_date).toISOString(),
+      ...(editFormData.type !== 'transfer' && { account_id: editFormData.account_id })
+    };
+
+    const { data, error } = await updateTransaction(editFormData.id, updated);
+    if (error) {
+      console.error('Error al actualizar:', error);
+      alert('Error al actualizar la transacción');
+    } else {
+      setTransactions(transactions.map(t => (t.id === editFormData.id ? (data as Transaction) : t)));
+      setShowEditModal(false);
+      setEditFormData({});
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
+    const { error } = await deleteTransaction(deleteTargetId);
+    if (error) {
+      console.error('Error eliminando:', error);
+      alert('Error al eliminar la transacción');
+    } else {
+      setTransactions(transactions.filter(t => t.id !== deleteTargetId));
+      setShowDeleteModal(false);
+      setDeleteTargetId(null);
+    }
+  };
+
   if (!user) {
     return <div className="home-page"><p>Por favor, inicia sesión</p></div>;
   }
@@ -206,6 +246,37 @@ export default function HomePage() {
                 <p className={`transaction-amount ${transaction.type}`}>
                   {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
                 </p>
+                <div className="transaction-actions">
+                  <button
+                    className="action-btn edit"
+                    onClick={() => {
+                      setEditFormData({
+                        id: transaction.id,
+                        description: transaction.description || '',
+                        amount: transaction.amount.toString(),
+                        type: transaction.type,
+                        currency: transaction.currency,
+                        account_id: (transaction as any).account_id || '',
+                        transaction_date: transaction.transaction_date ? new Date(transaction.transaction_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                      });
+                      setShowEditModal(true);
+                    }}
+                    aria-label="Editar"
+                  >
+                    <span className="material-symbols-outlined">edit</span>
+                  </button>
+
+                  <button
+                    className="action-btn delete"
+                    onClick={() => {
+                      setDeleteTargetId(transaction.id || null);
+                      setShowDeleteModal(true);
+                    }}
+                    aria-label="Eliminar"
+                  >
+                    <span className="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -306,6 +377,119 @@ export default function HomePage() {
 
               <button type="submit" className="submit-btn">Crear</button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && (
+        <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Editar Transacción</h2>
+              <button className="modal-close" onClick={() => setShowEditModal(false)}>✕</button>
+            </div>
+
+            <form onSubmit={handleUpdateTransaction} className="modal-form">
+              <div className="form-group">
+                <label>Descripción</label>
+                <input
+                  type="text"
+                  value={editFormData.description || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  placeholder="Ej: Café, Compra..."
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Importe</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editFormData.amount || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, amount: e.target.value })}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Tipo</label>
+                <select
+                  value={editFormData.type || 'expense'}
+                  onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
+                >
+                  <option value="expense">Gasto</option>
+                  <option value="income">Ingreso</option>
+                  <option value="transfer">Transferencia</option>
+                </select>
+              </div>
+
+              {(editFormData.type === 'expense' || editFormData.type === 'income') && (
+                <div className="form-group">
+                  <label>Cuenta</label>
+                  <select
+                    value={editFormData.account_id || ''}
+                    onChange={(e) => setEditFormData({ ...editFormData, account_id: e.target.value })}
+                    required
+                  >
+                    <option value="">Selecciona una cuenta</option>
+                    {accounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {account.name || account.id}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label>Moneda</label>
+                <select
+                  value={editFormData.currency || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, currency: e.target.value })}
+                  required
+                >
+                  <option value="">Selecciona una moneda</option>
+                  {currencies.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.name} ({currency.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Fecha</label>
+                <input
+                  type="date"
+                  value={editFormData.transaction_date || new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setEditFormData({ ...editFormData, transaction_date: e.target.value })}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="submit-btn">Guardar</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Eliminar Transacción</h2>
+              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-form">
+              <p>¿Estás seguro? Haz clic en "Eliminar" para confirmar la eliminación.</p>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                <button className="submit-btn" onClick={() => setShowDeleteModal(false)}>Cancelar</button>
+                <button className="submit-btn danger" onClick={async (e) => { e.preventDefault(); await handleConfirmDelete(); }}>Eliminar</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

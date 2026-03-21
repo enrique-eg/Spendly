@@ -237,6 +237,38 @@
   color: var(--primary);
 }
 
+.transaction-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.03);
+}
+
+.action-btn.delete {
+  color: var(--danger);
+}
+
+.submit-btn.danger, .danger {
+  background: var(--danger) !important;
+  color: var(--text-primary) !important;
+}
+
 .see-all-btn {
   background: none;
   border: none;
