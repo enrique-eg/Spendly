@@ -1,7 +1,12 @@
 import { GoogleGenAI } from "https://esm.run/@google/genai";
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
+const supabase = createClient(
+    "SUPABAS_PROJECT",
+    "SUPABASE_KEY"
+);
 // Esto pilla la key del nivel en el que está
-const ai = new GoogleGenAI({ apiKey: "AIzaSyANBJCIDpEpqVOCO8XrMUuPhv6pF7BgmPw" });
+const ai = new GoogleGenAI({ apiKey: "GOOGLE_API_KEY" });
 
 
 export async function createChat() {
@@ -13,8 +18,16 @@ export async function createChat() {
         },
     });
 
-    const datos = "Usuario ejemplo";
+    const datos = await obtenerDatosUsuario();
 
+    const promptDatos = `
+    Datos del usuario:
+    ${JSON.stringify(datos)}
+    `;
+
+    await chat.sendMessage({
+        message: promptDatos
+    });
 
 
 
@@ -46,13 +59,28 @@ function mostrarMensajeEnPantalla(autor, texto) {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+async function obtenerDatosUsuario() {
+    const { data, error } = await supabase
+        .from("accounts")
+        .select("*")
+        .eq("id", "e2f3ee10-1bf9-4740-a31f-a37736113371")
+    console.log(data)
+    if (error) {
+        console.error(error);
+        return null;
+    }
+
+    return data;
+}
 /*
 //Función para pruebas
 async function main()
 {
     const ChatActual = await createChat();
-    enviarMensaje(ChatActual, "Hola, recomiendame como ahorrar")
+    const respuesta = await ChatActual.sendMessage({message: "Hola, recomiendame como ahorrar"})
+    console.log(respuesta.text)
 
 }
+
+main();
 */
-//main();

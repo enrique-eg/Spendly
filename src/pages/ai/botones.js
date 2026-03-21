@@ -8,9 +8,11 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     const input = document.getElementById("userInput");
     const mensaje = input.value;
 
-    if (!mensaje || !currentChat) {
+    if (!currentChat) {
         currentChat = await createChat();
     }
+
+    if (!mensaje) return;
 
     await enviarMensaje(currentChat, mensaje);
 
