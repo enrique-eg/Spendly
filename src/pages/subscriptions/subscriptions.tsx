@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import type { Subscription } from '../../models/Subscription'
 import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription } from '../../services/subscriptionsService'
 import { getAccountsByUser } from '../../services/accountsService'
@@ -7,6 +8,8 @@ import './subscriptions.css'
 
 export default function SubscriptionsPage(){
   const { user } = useAuth()
+  const [showSettings, setShowSettings] = useState(false)
+  const [defaultCurrency, setDefaultCurrency] = useState('USD')
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [accounts, setAccounts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -97,12 +100,23 @@ export default function SubscriptionsPage(){
 
   return (
     <div className="subscriptions-page">
+      <header className="home-header">
+        <div className="header-left">
+          <div className="logo-circle">
+            <span className="material-symbols-outlined">wallet</span>
+          </div>
+          <h1>Subscriptions</h1>
+        </div>
+        <button className="settings-btn" onClick={() => setShowSettings(true)}>
+          <span className="material-symbols-outlined">settings</span>
+        </button>
+      </header>
+
       <header className="subs-header">
-        <h2>Subscriptions</h2>
         <div className="subs-balance">
           <div className="balance-card">
             <div className="card-header-top">
-              <span className="balance-label">MONTHLY SPEND</span>
+              <span className="balance-label">Subscriptions</span>
               <span className="material-symbols-outlined">payments</span>
             </div>
             <div className="balance-amount">${totalMonthly.toFixed(2)}</div>
