@@ -3,6 +3,10 @@ import SignInPage from "./pages/sign-in/sign-in"
 import SignUp from "./pages/sign-up/sign-up"
 import HomePage from "./pages/home-page/home-page"
 import Profile from "./pages/personal-profile/personal-profile"
+import SubscriptionsPage from './pages/subscriptions/subscriptions'
+import GoalsPage from './pages/goals/goals'
+import BudgetsPage from './pages/budgets/budgets'
+import AIPage from './pages/ai/ai'
 import { AuthProvider, useAuth } from "./context/AuthContext"
 import BottomNav from './components/bottomNav/BottomNav'
 
@@ -71,6 +75,12 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+          {/* Placeholder pages for bottom nav */}
+          <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage/></ProtectedRoute>} />
+          <Route path="/goals" element={<ProtectedRoute><GoalsPage/></ProtectedRoute>} />
+          <Route path="/budgets" element={<ProtectedRoute><BudgetsPage/></ProtectedRoute>} />
+          <Route path="/ai" element={<ProtectedRoute><AIPage/></ProtectedRoute>} />
 
         </Routes>
       </BrowserRouter>
