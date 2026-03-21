@@ -99,7 +99,7 @@ export default function SubscriptionsPage(){
   const activeCount = subscriptions.filter(s => s.is_active).length
 
   return (
-    <div className="subscriptions-page">
+    <>
       <header className="home-header">
         <div className="header-left">
           <div className="logo-circle">
@@ -129,7 +129,8 @@ export default function SubscriptionsPage(){
         </div>
       </header>
 
-      <main className="subs-main">
+      <div className="subscriptions-page">
+        <main className="subs-main">
         {loading && <p>Cargando...</p>}
         {!loading && subscriptions.length === 0 && <p className="empty">No hay suscripciones</p>}
 
@@ -205,5 +206,6 @@ export default function SubscriptionsPage(){
         onDefaultCurrencyChange={setDefaultCurrency}
       />
     </div>
+    </>
   )
 }
