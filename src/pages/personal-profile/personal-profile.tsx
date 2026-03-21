@@ -5,6 +5,9 @@ import lockIcon from "../../assets/padlock.png"
 import bellIcon from "../../assets/notification-bell.png"
 import reloadIcon from "../../assets/reload.png"
 import premiumIcon from "../../assets/premium-quality.png"
+import cardIcon from "../../assets/credit-card.png"
+import bankIcon from "../../assets/bank.png"
+import Swal from "sweetalert2"
 
 import { useAuth } from "../../context/AuthContext"
 import supabase from "../../services/supabaseClient"
@@ -17,6 +20,19 @@ export default function Profile(){
 
   const [image, setImage] = useState<string | null>(null)
   const [profile, setProfile] = useState<any>(null)
+  const [showCards, setShowCards] = useState(false)
+  const [showAccounts, setShowAccounts] = useState(false)
+
+  const [cards, setCards] = useState([
+    { id: 1, type: "Visa", last4: "1234", active: true },
+    { id: 2, type: "Mastercard", last4: "5678", active: false }
+  ])
+
+  const [accounts, setAccounts] = useState([
+    { id: 1, iban: "ES91 **** 1234", owner: "Juan Pérez", bank: "Santander", active: true },
+    { id: 2, iban: "ES12 **** 5678", owner: "Juan Pérez", bank: "BBVA", active: false }
+  ])
+
 
   useEffect(() => {
     if(!user) return
@@ -68,8 +84,29 @@ export default function Profile(){
 
     setImage(publicUrl)
   }
+  function toggleCard(id: number){
+    setCards(prev =>
+      prev.map(c => c.id === id ? { ...c, active: !c.active } : c)
+    )
+  }
+
+  function toggleAccount(id: number){
+    setAccounts(prev =>
+      prev.map(a => a.id === id ? { ...a, active: !a.active } : a)
+    )
+  }
 
   async function handleLogout(){
+    const result = await Swal.fire({
+      title: "Log out?",
+      text: "You will need to sign in again",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, log out"
+    })
+
+    if (!result.isConfirmed) return
+
     await supabase.auth.signOut()
     navigate("/sign-in")
   }
@@ -96,8 +133,6 @@ export default function Profile(){
             className="avatar-img"
             src={image || profile?.avatar_url || userIcon} 
           />
-
-          <span className="verified">✔</span>
         </label>
 
         <h3>{profile?.username || "Usuario"}</h3>
@@ -133,13 +168,61 @@ export default function Profile(){
           <span>›</span>
         </div>
 
-        <div className="setting-item">
+        <div className="setting-item clickable" onClick={()=>setShowCards(prev => !prev)}>
           <span className="setting-left">
-            <img src={reloadIcon} className="icon" />
-            Biometric Login
+            <img src={cardIcon} className="icon" />
+            Cards
           </span>
-          <div className="toggle"></div>
+          <span>{showCards ? "˄" : "›"}</span>
         </div>
+
+        {showCards && (
+          <div className="dropdown">
+            {cards.map(card => (
+              <div key={card.id} className="dropdown-item">
+                <span>{card.type} ****{card.last4}</span>
+
+                <div 
+                  className={`toggle ${card.active ? "active" : ""}`}
+                  onClick={(e)=>{
+                    e.stopPropagation()
+                    toggleCard(card.id)
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="setting-item clickable" onClick={()=>setShowAccounts(prev => !prev)}>
+          <span className="setting-left">
+            <img src={bankIcon} className="icon" />
+            Bank Accounts
+          </span>
+          <span>{showAccounts ? "˄" : "›"}</span>
+        </div>
+
+        {showAccounts && (
+          <div className="dropdown">
+            {accounts.map(acc => (
+              <div key={acc.id} className="dropdown-item">
+                <span>
+                  {acc.iban}
+                  <br/>
+                  <small>{acc.owner} - {acc.bank}</small>
+                </span>
+
+                <div 
+                  className={`toggle ${acc.active ? "active" : ""}`}
+                  onClick={(e)=>{
+                    e.stopPropagation()
+                    toggleAccount(acc.id)
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="setting-item">
           <span className="setting-left">
