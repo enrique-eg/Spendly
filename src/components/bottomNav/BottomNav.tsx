@@ -7,7 +7,7 @@ export default function BottomNav() {
     { to: '/subscriptions', icon: 'credit_card', label: 'SUBS' },
     { to: '/goals', icon: 'bolt', label: 'GOALS' },
     { to: '/budgets', icon: 'wallet', label: 'BUDGETS' },
-    { to: '/ai', icon: 'sparkles', label: 'AI' }
+    { to: '/ai', icon: 'smart_toy', label: 'AI' }
   ];
 
   return (
