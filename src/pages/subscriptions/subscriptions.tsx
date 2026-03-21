@@ -105,7 +105,7 @@ export default function SubscriptionsPage(){
           <div className="logo-circle">
             <span className="material-symbols-outlined">wallet</span>
           </div>
-          <h1>Subscriptions</h1>
+          <h1>Spendly</h1>
         </div>
         <button className="settings-btn" onClick={() => setShowSettings(true)}>
           <span className="material-symbols-outlined">settings</span>
@@ -197,6 +197,13 @@ export default function SubscriptionsPage(){
           </div>
         </div>
       )}
+      <SettingsSidebar 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        userId={user?.id || ''}
+        defaultCurrency={defaultCurrency}
+        onDefaultCurrencyChange={setDefaultCurrency}
+      />
     </div>
   )
 }
