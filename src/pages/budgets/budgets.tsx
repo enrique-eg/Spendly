@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import { getAccountsByUser } from '../../services/accountsService'
 import { getBudgets, createBudget, updateBudget, deleteBudget } from '../../services/budgetsService'
-import { getTransactionsByAccount, getTransactionsByAccountInRange } from '../../services/transactionsService'
+import { getTransactionsByAccountInRange } from '../../services/transactionsService'
 import type { Budget } from '../../models/Budget'
 import './budgets.css'
 
@@ -116,7 +116,7 @@ function BudgetsPageInner(){
                   account={a}
                   budget={b}
                   getSpent={() => getSpentForAccount(a.id)}
-                  onSave={(amt) => handleSaveLimit(a.id, amt)}
+                  onSave={(amt: number) => handleSaveLimit(a.id, amt)}
                   onRemove={() => b && handleRemove(b.id)}
                 />
               )
