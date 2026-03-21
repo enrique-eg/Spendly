@@ -99,14 +99,18 @@ export default function SubscriptionsPage(){
     <div className="subscriptions-page">
       <header className="subs-header">
         <h2>Subscriptions</h2>
-        <div className="subs-stats">
-          <div className="stat-card">
-            <div className="stat-label">MONTHLY SPEND</div>
-            <div className="stat-value">${totalMonthly.toFixed(2)}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">ACTIVE SUBS</div>
-            <div className="stat-value">{activeCount}</div>
+        <div className="subs-balance">
+          <div className="balance-card">
+            <div className="card-header-top">
+              <span className="balance-label">MONTHLY SPEND</span>
+              <span className="material-symbols-outlined">payments</span>
+            </div>
+            <div className="balance-amount">${totalMonthly.toFixed(2)}</div>
+            <div style={{ height: '0.5rem' }} />
+            <div className="stat-card" style={{ background: 'transparent', border: 'none', padding: 0 }}>
+              <div className="stat-label">ACTIVE SUBS</div>
+              <div className="stat-value">{activeCount}</div>
+            </div>
           </div>
         </div>
       </header>
