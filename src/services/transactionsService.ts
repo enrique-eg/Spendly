@@ -26,6 +26,21 @@ export async function getTransactionsByAccount(accountId: string) {
   }
 }
 
+export async function getTransactionsByAccountInRange(accountId: string, startDate: string, endDate: string) {
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('account_id', accountId)
+      .eq('type', 'expense')
+      .gte('transaction_date', startDate)
+      .lte('transaction_date', endDate)
+    return { data, error }
+  } catch (error) {
+    return { data: null, error }
+  }
+}
+
 export async function createTransaction(transaction: Partial<Transaction>) {
   try {
     const { data, error } = await supabase
