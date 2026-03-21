@@ -3,10 +3,11 @@ import SignInPage from "./pages/sign-in/sign-in"
 import SignUp from "./pages/sign-up/sign-up"
 import HomePage from "./pages/home-page/home-page"
 import { AuthProvider, useAuth } from "./context/AuthContext"
+import BottomNav from './components/bottomNav/BottomNav'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
-  return user ? <>{children}</> : <Navigate to="/sign-in" />
+  return user ? <>{children}<BottomNav/></> : <Navigate to="/sign-in" />
 }
 
 function AuthRoute({ children }: { children: React.ReactNode }) {
