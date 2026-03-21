@@ -8,4 +8,5 @@ export interface Subscription {
   currency: string
   billing_day?: number | null
   is_active: boolean
+  created_at?: string | null
 }
