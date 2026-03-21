@@ -91,3 +91,18 @@
   outline: none;
   border-color: var(--primary);
 }
+
+.logout-btn {
+  width: 100%;
+  background: var(--primary);
+  color: var(--bg-color);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  opacity: 0.9;
+}

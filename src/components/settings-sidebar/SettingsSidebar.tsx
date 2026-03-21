@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrencies } from '../../services/currenciesService';
 import { updateUserProfile } from '../../services/profilesService';
+import { logout } from '../../services/authService';
 import './settings-sidebar.css';
 
 interface SettingsSidebarProps {
@@ -36,6 +37,16 @@ export default function SettingsSidebar({ isOpen, onClose, userId, defaultCurren
     }
   };
 
+  const handleLogout = async () => {
+    const { error } = await logout();
+    if (error) {
+      console.error('Error al cerrar sesión:', error);
+      alert('No se pudo cerrar sesión');
+      return;
+    }
+    onClose();
+  };
+
   return (
     <>
       {isOpen && <div className="settings-overlay" onClick={onClose} />}
@@ -62,6 +73,9 @@ export default function SettingsSidebar({ isOpen, onClose, userId, defaultCurren
                 ))}
               </select>
             )}
+          </div>
+          <div style={{ marginTop: '1.5rem' }}>
+            <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
           </div>
         </div>
       </div>
