@@ -19,7 +19,7 @@ export default function SignUp(){
   const [confirmPassword,setConfirmPassword] = useState("")
 
   const [showPassword,setShowPassword] = useState(false)
-  const [showConfirmPassword,setShowConfirmPassword] = useState(false)
+
 
   const passwordChecks = {
     length: password.length >= 8,
@@ -138,7 +138,6 @@ export default function SignUp(){
           <div className="input-box">
             <img src={reloadIcon} className="input-icon" />
             <input
-              type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e)=>setConfirmPassword(e.target.value)}
