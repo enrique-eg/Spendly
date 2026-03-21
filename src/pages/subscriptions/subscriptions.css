@@ -2,6 +2,8 @@
 .subscriptions-page {
   padding: 1rem;
   color: var(--text-primary);
+  border: none;
+  background: transparent;
 }
 
 .subs-header {
@@ -10,6 +12,8 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
+  border: none;
+  background: transparent;
 }
 
 .subs-stats {
