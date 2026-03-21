@@ -158,7 +158,7 @@ export default function HomePage() {
 
   const handleConfirmDelete = async () => {
     if (!deleteTargetId) return;
-    const { data, error } = await deleteTransaction(deleteTargetId);
+    const { error } = await deleteTransaction(deleteTargetId);
     if (error) {
       console.error('Error eliminando:', error);
       alert('Error al eliminar la transacción');
