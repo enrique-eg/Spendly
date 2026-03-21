@@ -14,19 +14,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
 
-    // Obtener sesión actual al cargar la app
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null)
     })
 
-    // Escuchar cambios de autenticación
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null)
       }
     )
 
-    // Limpiar listener al desmontar
     return () => {
       listener.subscription.unsubscribe()
     }
