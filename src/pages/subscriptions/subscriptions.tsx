@@ -107,7 +107,7 @@ export default function SubscriptionsPage(){
                 description: `${s.name} subscription:${s.id}`,
                 transaction_date: chargeDate.toISOString()
               }
-              const { data: createdTx, error: createErr } = await createTransaction(txPayload)
+              const { error: createErr } = await createTransaction(txPayload)
               if (createErr) {
                 console.error('Error creating subscription transaction for', s.id, createErr)
               } else {
