@@ -1,9 +1,11 @@
 .budgets-page {
-  padding: 1rem;
+  padding: 1rem 1.25rem;
+  width: 100%;
 }
 .budgets-main {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 .budgets-list {
   display: flex;
@@ -14,27 +16,42 @@
 .budget-card {
   display: flex;
   gap: 1rem;
-  background: var(--card-bg, rgba(255,255,255,0.04));
+  background: var(--card-bg, rgba(255,255,255,0.02));
   padding: 0.75rem;
   border-radius: 0.5rem;
   align-items: center;
+  color: #ffffff;
+  border: 1px solid var(--border);
 }
 .budget-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--accent, #17cf54);
-  display:flex;align-items:center;justify-content:center;color:var(--bg, #fff);font-weight:600
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #17cf54; /* light green */
+  display:flex;align-items:center;justify-content:center;color:#ffffff;font-weight:700
 }
 .budget-body { flex: 1 }
 .budget-top { display:flex;justify-content:space-between;align-items:center }
-.budget-name { font-weight:600 }
-.budget-values { color:var(--muted,#bbb) }
+.budget-name { font-weight:700; color: #ffffff; font-size: 1rem }
+.budget-meta { font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 2px }
+.budget-values-block { text-align: right }
+.small-label { font-size: 0.75rem; color: rgba(255,255,255,0.7) }
+.budget-values { color: #ffffff; opacity: 0.95; font-weight:700 }
 .progress-wrap { margin-top:0.5rem; display:flex;align-items:center;gap:0.5rem }
 .progress-bar { flex:1; height:10px; background:rgba(255,255,255,0.06); border-radius:999px; overflow:hidden }
-.progress-fill { height:100%; background:var(--accent,#17cf54); width:0 }
-.progress-label { width:42px; text-align:right; color:var(--muted,#bbb); font-size:0.9rem }
+.progress-fill { height:100%; background:#17cf54; width:0 }
+.progress-label { width:120px; text-align:right; color:#ffffff; opacity:0.9; font-size:0.9rem }
 .budget-actions-row { margin-top:0.75rem; display:flex;gap:0.75rem; align-items:center }
-.budget-actions-row input { padding:0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit }
-.submit-btn { background:var(--accent,#17cf54); color:white; padding:0.45rem 0.9rem; border-radius:6px; border:none }
+.budget-actions-row input { padding:0.5rem;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#ffffff }
+.submit-btn { background:#17cf54; color:#ffffff; padding:0.45rem 0.9rem; border-radius:6px; border:none }
 .submit-btn.danger, .submit-btn.danger:hover { background:#e03b3b }
+
+/* colored fills based on usage */
+.progress-fill.fill-green { background: #17cf54 }
+.progress-fill.fill-yellow { background: #f5c542 }
+.progress-fill.fill-red { background: #e03b3b }
+
+.actions-row { display: flex; gap: 0.5rem; }
+
+/* header subtitle */
+.header-sub { font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-top: 2px }
