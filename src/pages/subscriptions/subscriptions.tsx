@@ -98,6 +98,31 @@ export default function SubscriptionsPage(){
   const totalMonthly = subscriptions.reduce((sum, s) => sum + (s.amount || 0), 0)
   const activeCount = subscriptions.filter(s => s.is_active).length
 
+  const getNextChargeMonth = (billingDay: number | string | null | undefined) => {
+    if (!billingDay) return '-'
+    const day = Number(billingDay)
+    if (!day || day < 1) return '-'
+    const today = new Date()
+    let year = today.getFullYear()
+    let month = today.getMonth()
+
+    const makeCandidate = (y: number, m: number) => {
+      const lastDay = new Date(y, m + 1, 0).getDate()
+      const d = Math.min(day, lastDay)
+      return new Date(y, m, d)
+    }
+
+    let candidate = makeCandidate(year, month)
+    if (candidate <= today) {
+      month += 1
+      if (month > 11) { month = 0; year += 1 }
+      candidate = makeCandidate(year, month)
+    }
+
+    const monthName = candidate.toLocaleString('en-US', { month: 'long' })
+    return monthName.charAt(0).toUpperCase() + monthName.slice(1)
+  }
+
   return (
     <>
       <header className="home-header">
@@ -113,18 +138,19 @@ export default function SubscriptionsPage(){
       </header>
 
       <header className="subs-header">
-        <div className="subs-balance">
-          <div className="balance-card">
+        <div className="subs-stats-grid">
+          <div className="balance-card monthly-card">
             <div className="card-header-top">
               <span className="balance-label">Subscriptions</span>
               <span className="material-symbols-outlined">payments</span>
             </div>
             <div className="balance-amount">${totalMonthly.toFixed(2)}</div>
-            <div style={{ height: '0.5rem' }} />
-            <div className="stat-card" style={{ background: 'transparent', border: 'none', padding: 0 }}>
-              <div className="stat-label">ACTIVE SUBS</div>
-              <div className="stat-value">{activeCount}</div>
-            </div>
+          </div>
+
+          <div className="active-card stat-card">
+            <div className="stat-label">ACTIVE SUBS</div>
+            <div className="stat-value">{activeCount}</div>
+            <div className="stat-note">Stable</div>
           </div>
         </div>
       </header>
@@ -138,15 +164,15 @@ export default function SubscriptionsPage(){
           {subscriptions.map(s => (
             <div key={s.id} className="sub-card">
               <div className="sub-left">
-                <div className="sub-avatar">{(s.name || 'S').charAt(0).toUpperCase()}</div>
-              </div>
-              <div className="sub-body">
-                <div className="sub-top">
-                  <div className="sub-name">{s.name}</div>
+                  <div className="sub-avatar">{(s.name || 'S').charAt(0).toUpperCase()}</div>
+                </div>
+                <div className="sub-body">
+                  <div className="sub-meta-left">
+                    <div className="sub-name">{s.name}</div>
+                    <div className="sub-meta">Account: {accounts.find(a => a.id === s.account_id)?.name || '-'} • {s.billing_day ? `${s.billing_day} ${getNextChargeMonth(s.billing_day)}` : '-'}</div>
+                  </div>
                   <div className="sub-amount">${s.amount.toFixed(2)}</div>
                 </div>
-                <div className="sub-meta">{s.account_id ? s.account_id : ''} • Day {s.billing_day ?? '-'}</div>
-              </div>
               <div className="sub-actions">
                 <button className="action-btn edit" onClick={() => handleEdit(s)}><span className="material-symbols-outlined">edit</span></button>
                 <button className="action-btn delete" onClick={() => handleDelete(s.id)}><span className="material-symbols-outlined">delete</span></button>
