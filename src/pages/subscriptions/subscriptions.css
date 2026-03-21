@@ -1,0 +1,122 @@
+/* Subscriptions page styles - follow app palette */
+.subscriptions-page {
+  padding: 1rem;
+  color: var(--text-primary);
+  border: none;
+  background: transparent;
+}
+
+.home-header {
+  color: #ffffff;
+}
+
+.subs-header {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: none;
+  background: transparent;
+}
+
+.subs-stats-grid, .subs-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.subs-balance {
+  display: flex;
+  align-items: center;
+}
+
+.subs-stats-grid .balance-card, .subs-stats-grid .active-card {
+  padding: 1.5rem;
+  width: 100%;
+  border-radius: 1.5rem;
+  background: rgba(23, 207, 84, 0.1);
+  border: 1px solid rgba(23, 207, 84, 0.2);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.monthly-card .card-header-top { display:flex; justify-content:space-between; align-items:center }
+.monthly-card .balance-amount { font-size: 1.75rem; font-weight: 800 }
+.active-card { display:flex; flex-direction:column; justify-content:center; align-items:flex-start }
+.active-card .stat-value { font-size: 1.5rem; font-weight:800 }
+.active-card .stat-note { color: var(--text-secondary); margin-top: 0.25rem }
+
+.balance-label {
+  color: rgba(23,207,84,0.9);
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.stat-value {
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+.subs-main {
+  margin-top: 1rem;
+}
+
+.subs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sub-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: 1rem;
+  color: var(--text-primary);
+  min-height: 64px;
+}
+
+.sub-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.sub-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.sub-meta-left { display:flex; flex-direction:column; gap:0.25rem }
+.sub-name { font-weight:700; color: var(--text-primary) }
+.sub-meta { color: var(--text-secondary); font-size:0.9rem }
+.sub-amount { font-weight:700; color: var(--primary); display:flex; align-items:center }
+
+.sub-actions { display:flex; gap:0.5rem }
+.subs-fab { bottom: 5.5rem }
+
+/* Reuse modal classes from home-page.css; tweaks if needed */
