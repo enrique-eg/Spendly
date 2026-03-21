@@ -139,7 +139,7 @@ function BudgetsPageInner(){
 function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove }: any) {
   const [limit, setLimit] = useState<string>(budget?.limit_amount ? String(budget.limit_amount) : '')
   const [spent, setSpent] = useState(0)
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
 
   useEffect(() => {
     let mounted = true
