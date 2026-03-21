@@ -151,7 +151,9 @@ export default function Profile(){
           and advanced AI-powered forecasting tools.
         </p>
 
-        <button>Upgrade Now</button>
+        <button onClick={()=>navigate("/subscription")}>
+          Upgrade Now
+        </button>
       </div>
 
       {/* SETTINGS */}

@@ -9,6 +9,7 @@ import BudgetsPage from './pages/budgets/budgets'
 import AIPage from './pages/ai/ai'
 import { AuthProvider, useAuth } from "./context/AuthContext"
 import BottomNav from './components/bottomNav/BottomNav'
+import Premium from "./pages/premium/premium"
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
@@ -75,11 +76,20 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route
+            path="/subscription"
+            element={
+              <ProtectedRoute>
+                <Premium />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Placeholder pages for bottom nav */}
           <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage/></ProtectedRoute>} />
           <Route path="/goals" element={<ProtectedRoute><GoalsPage/></ProtectedRoute>} />
           <Route path="/budgets" element={<ProtectedRoute><BudgetsPage/></ProtectedRoute>} />
+          <Route path="/premium" element={<ProtectedRoute><Premium/></ProtectedRoute>} />
           <Route path="/ai" element={<ProtectedRoute><AIPage/></ProtectedRoute>} />
 
         </Routes>
