@@ -43,7 +43,7 @@ body{
 }
 
 .avatar-img{
-  width:20%;  /* como lo tenías */
+  width:20%;  
   height:20%;
   object-fit:cover;
   border-radius:50%;
@@ -56,7 +56,6 @@ body{
 }
 
 
-/* ICONOS (SOLUCIONA EL PROBLEMA GIGANTE) */
 .icon{
   width:18px;
   height:18px;
@@ -79,7 +78,6 @@ body{
   gap:8px;
 }
 
-/* avatar (no tocar otros img) */
 .avatar-img{
   width:100px;
   height:100px;
@@ -154,7 +152,7 @@ body{
 }
 
 
-/* BASE */
+
 .toggle{
   width:40px;
   height:22px;
@@ -165,7 +163,7 @@ body{
   cursor:pointer;
 }
 
-/* CÍRCULO */
+
 .toggle::after{
   content:"";
   position:absolute;
@@ -178,19 +176,19 @@ body{
   transition:0.25s;
 }
 
-/* ACTIVO */
+
 .toggle.active{
   background:#22c55e;
 }
 
-/* MOVER CÍRCULO */
 .toggle.active::after{
   transform:translateX(18px);
 }
 
 .logout{
   margin-top:auto;
-  padding:14px;
+  margin-bottom: 50px;
+  padding:15px;
   border-radius:12px;
   border:1px solid #ef4444;
   background:transparent;

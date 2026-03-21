@@ -32,7 +32,7 @@ export default function Profile(){
     { id: 2, iban: "ES12 **** 5678", owner: "Juan Pérez", bank: "BBVA", active: false }
   ])
 
-
+  // 🔥 cargar perfil
   useEffect(() => {
     if(!user) return
 
@@ -53,6 +53,40 @@ export default function Profile(){
 
     fetchProfile()
   }, [user])
+
+  // 🔥 estado premium
+  const isPremium = profile?.premium_until 
+    && new Date(profile.premium_until) > new Date()
+
+  const expiryDate = profile?.premium_until
+    ? new Date(profile.premium_until).toLocaleDateString()
+    : null
+
+  // 🔥 cancelar suscripción
+  async function handleCancelSubscription(){
+
+    const confirm = await Swal.fire({
+      title: "Cancel subscription?",
+      text: "You will lose premium features",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, cancel"
+    })
+
+    if (!confirm.isConfirmed || !user) return
+
+    await supabase
+      .from("profiles")
+      .update({
+        premium_until: null,
+        subscription_type: null
+      })
+      .eq("id", user.id)
+
+    Swal.fire("Cancelled", "You are now on free plan", "success")
+
+    window.location.reload()
+  }
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -83,6 +117,7 @@ export default function Profile(){
 
     setImage(publicUrl)
   }
+
   function toggleCard(id: number){
     setCards(prev =>
       prev.map(c => c.id === id ? { ...c, active: !c.active } : c)
@@ -139,19 +174,53 @@ export default function Profile(){
 
       </div>
 
-      {/* PREMIUM */}
+      {/* 🔥 PREMIUM DINÁMICO */}
       <div className="premium-card">
-        <h4 className="premium-title">
-          <img src={premiumIcon} className="icon" />
-          Upgrade to Premium Plan
-        </h4>
 
-        <p>
-          Get exclusive insights, unlimited budget categories,
-          and advanced AI-powered forecasting tools.
-        </p>
+        {!isPremium ? (
+          <>
+            <h4 className="premium-title">
+              <img src={premiumIcon} className="icon" />
+              Upgrade to Premium Plan
+            </h4>
 
-        <button>Upgrade Now</button>
+            <p>
+              Get exclusive insights, unlimited budget categories,
+              and advanced AI-powered forecasting tools.
+            </p>
+
+            <button onClick={()=>navigate("/subscription")}>
+              Upgrade Now
+            </button>
+          </>
+        ) : (
+          <>
+            <h4 className="premium-title">
+              <img src={premiumIcon} className="icon" />
+              Premium Active 💎
+            </h4>
+
+            <p>
+              Plan: <strong>{profile?.subscription_type?.toUpperCase()}</strong>
+            </p>
+
+            <p>
+              Expires on: <strong>{expiryDate}</strong>
+            </p>
+
+            <button onClick={()=>navigate("/subscription")}>
+              Change Subscription
+            </button>
+
+            <button 
+              className="cancel-btn"
+              onClick={handleCancelSubscription}
+            >
+              Cancel Subscription
+            </button>
+          </>
+        )}
+
       </div>
 
       {/* SETTINGS */}
