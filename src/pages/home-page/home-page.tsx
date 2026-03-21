@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getTransactionsByUser, createTransaction, updateTransaction, deleteTransaction } from '../../services/transactionsService';
 import { getAccountsByUser } from '../../services/accountsService';
@@ -11,6 +12,7 @@ import './home-page.css';
 
 export default function HomePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [currencies, setCurrencies] = useState<any[]>([]);
@@ -192,9 +194,15 @@ export default function HomePage() {
           </div>
           <h1>Spendly</h1>
         </div>
-        <button className="settings-btn" onClick={() => setShowSettings(true)}>
-          <span className="material-symbols-outlined">settings</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button className="profile-btn" onClick={() => navigate('/personal-profile')}>
+            <span className="material-symbols-outlined">person</span>
+          </button>
+
+          <button className="settings-btn" onClick={() => setShowSettings(true)}>
+            <span className="material-symbols-outlined">settings</span>
+          </button>
+        </div>
       </header>
 
       <main className="home-main">

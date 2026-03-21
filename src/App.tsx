@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import SignInPage from "./pages/sign-in/sign-in"
 import SignUp from "./pages/sign-up/sign-up"
 import HomePage from "./pages/home-page/home-page"
+import Profile from "./pages/personal-profile/personal-profile"
 import { AuthProvider, useAuth } from "./context/AuthContext"
 import BottomNav from './components/bottomNav/BottomNav'
 
@@ -57,6 +58,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <HomePage />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* PROFILE */}
+          <Route 
+            path="/personal-profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             } 
           />
