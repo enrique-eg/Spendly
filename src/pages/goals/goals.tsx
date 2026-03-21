@@ -106,7 +106,8 @@ export default function GoalsPage(){
       const { data, error } = await updateGoal(editingId, payload)
       if (error) {
         console.error('updateGoal error', error)
-        alert('Error updating goal: ' + (error.message || JSON.stringify(error)))
+        const msg = (error as any)?.message || JSON.stringify(error)
+        alert('Error updating goal: ' + msg)
         return
       }
       setGoals(goals.map(g => g.id === editingId ? (data as SavingGoal) : g))
@@ -115,7 +116,8 @@ export default function GoalsPage(){
       const { data, error } = await createGoal(payload)
       if (error) {
         console.error('createGoal error', error)
-        alert('Error creating goal: ' + (error.message || JSON.stringify(error)))
+        const msg = (error as any)?.message || JSON.stringify(error)
+        alert('Error creating goal: ' + msg)
         return
       }
       setGoals([data as SavingGoal, ...goals])
@@ -126,11 +128,16 @@ export default function GoalsPage(){
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar meta?')) return
     const { error } = await deleteGoal(id)
-    if (error) { console.error('deleteGoal error', error); alert('Error deleting: ' + (error.message || JSON.stringify(error))); return }
+    if (error) {
+      console.error('deleteGoal error', error)
+      const msg = (error as any)?.message || JSON.stringify(error)
+      alert('Error deleting: ' + msg)
+      return
+    }
     setGoals(goals.filter(g => g.id !== id))
   }
 
-  const totalSaved = goals.reduce((sum, g) => sum + 0, 0)
+  const totalSaved = goals.reduce((sum) => sum + 0, 0)
 
   const formatDeadlineForDisplay = (dl?: string | null) => {
     if (!dl) return '—'

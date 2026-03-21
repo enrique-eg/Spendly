@@ -99,7 +99,7 @@ export default function HomePage() {
             })
             if (already) continue
 
-            const txPayload = {
+            const txPayload: Partial<Transaction> = {
               user_id: user.id,
               account_id: s.account_id,
               type: 'expense',

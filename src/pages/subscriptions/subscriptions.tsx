@@ -4,6 +4,7 @@ import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import type { Subscription } from '../../models/Subscription'
 import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription } from '../../services/subscriptionsService'
 import { getTransactionsByAccount, createTransaction } from '../../services/transactionsService'
+import type { Transaction } from '../../models/Transaction'
 import { getAccountsByUser } from '../../services/accountsService'
 import './subscriptions.css'
 
@@ -33,7 +34,7 @@ export default function SubscriptionsPage(){
       setLoading(false)
 
       // After loading subscriptions, check for due charges and create transactions if needed
-      (async function processDueCharges() {
+      ;(async function processDueCharges() {
         try {
           const today = new Date()
           const monthKey = `${today.getFullYear()}-${today.getMonth()+1}`
@@ -65,7 +66,7 @@ export default function SubscriptionsPage(){
             if (already) continue
 
             // create transaction as expense
-            const txPayload = {
+            const txPayload: Partial<Transaction> = {
               user_id: user.id,
               account_id: s.account_id,
               type: 'expense',
