@@ -31,7 +31,9 @@
 }
 
 .nav-item .nav-icon {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
+  line-height: 1;
+  display: block;
 }
 
 .nav-item.active {
