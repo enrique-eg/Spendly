@@ -76,49 +76,76 @@ export default function HomePage() {
         try {
           const { data: subsData } = await getSubscriptions()
           const today = new Date()
-          const monthKey = `${today.getFullYear()}-${today.getMonth()+1}`
-          if (sessionStorage.getItem('subs_charged_' + monthKey)) return
+          
+
+          const monthStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1)
+          const addOneMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth() + 1, 1)
 
           for (const s of (subsData || []).filter((ss: any) => ss.user_id === user.id && ss.is_active)) {
             if (!s.billing_day || !s.account_id) continue
             const day = Number(s.billing_day)
             if (!day) continue
-            const lastDay = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate()
-            const billDay = Math.min(day, lastDay)
-            if (today.getDate() !== billDay) continue
+
+            const createdAt = s.created_at ? new Date(s.created_at) : null
+            const startMonth = createdAt ? monthStart(createdAt) : monthStart(today)
 
             const { data: txs, error: txErr } = await getTransactionsByAccount(s.account_id)
             if (txErr) { console.error('Error fetching transactions for account', s.account_id, txErr); continue }
-            const already = (txs || []).some((t: any) => {
-              const desc = String(t.description || '')
-              if (desc.includes(`subscription:${s.id}`)) return true
-              const created = t.transaction_date || t.created_at
-              if (!created) return false
-              const d = new Date(created)
-              return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && Number(t.amount) === Number(s.amount)
-            })
-            if (already) continue
 
-            const txPayload: Partial<Transaction> = {
-              user_id: user.id,
-              account_id: s.account_id,
-              type: 'expense',
-              amount: s.amount,
-              currency: s.currency || defaultCurrency,
-              description: `Subscription: ${s.name} subscription:${s.id}`,
-              transaction_date: today.toISOString()
-            }
-            const { data: createdTx, error: createErr } = await createTransaction(txPayload)
-            if (createErr) {
-              console.error('Error creating subscription transaction for', s.id, createErr)
-            } else {
-              console.log('Created subscription transaction', createdTx)
-              // optimistically add to transactions shown on Home
-              setTransactions(prev => [createdTx as Transaction, ...prev])
+            for (let m = startMonth; m <= monthStart(today); m = addOneMonth(m)) {
+              const year = m.getFullYear()
+              const monthIndex = m.getMonth()
+              const lastDayOfMonth = new Date(year, monthIndex + 1, 0).getDate()
+              const billDay = Math.min(day, lastDayOfMonth)
+              const chargeDate = new Date(year, monthIndex, billDay)
+
+              // per-subscription/month guard to avoid duplicate creation across runs
+              const subMonthKey = `subs_charged_${s.id}_${year}-${monthIndex+1}`
+              if (sessionStorage.getItem(subMonthKey)) {
+                continue
+              }
+
+              if (chargeDate > today) {
+                continue
+              }
+              if (createdAt && chargeDate < createdAt) {
+                continue
+              }
+
+              const matchingTx = (txs || []).find((t: any) => {
+                const desc = String(t.description || '').trim()
+                if (desc.includes(`subscription:${s.id}`)) return true
+                if (desc === (s.name || '').trim()) return true
+                const created = t.transaction_date || t.created_at
+                if (!created) return false
+                const d = new Date(created)
+                // require same year, month AND day (billing day) for a match, plus same amount
+                return d.getFullYear() === year && d.getMonth() === monthIndex && d.getDate() === billDay && Number(t.amount) === Number(s.amount)
+              })
+              if (matchingTx) {
+                continue
+              }
+
+              const txPayload: Partial<Transaction> = {
+                user_id: user.id,
+                account_id: s.account_id,
+                type: 'expense',
+                amount: s.amount,
+                currency: s.currency || defaultCurrency,
+                description: `${s.name} subscription:${s.id}`,
+                transaction_date: chargeDate.toISOString()
+              }
+              const { data: createdTx, error: createErr } = await createTransaction(txPayload)
+              if (createErr) {
+                console.error('Error creating subscription transaction for', s.id, createErr)
+              } else {
+                try { sessionStorage.setItem(subMonthKey, '1') } catch (e) {}
+                // optimistically add to transactions shown on Home
+                setTransactions(prev => [createdTx as Transaction, ...prev])
+              }
             }
           }
-
-          sessionStorage.setItem('subs_charged_' + monthKey, '1')
+          // done processing subscriptions
         } catch (err) {
           console.error('processDueCharges error', err)
         }
@@ -302,7 +329,7 @@ export default function HomePage() {
                   <span className="material-symbols-outlined">receipt</span>
                 </div>
                 <div className="transaction-info">
-                  <p className="transaction-name">{transaction.description || 'Transacción'}</p>
+                  <p className="transaction-name">{(transaction.description || 'Transacción').replace(/\s*subscription:[^\s]+$/, '')}</p>
                   <p className="transaction-meta">{transaction.currency} • {transaction.transaction_date}</p>
                 </div>
                 <p className={`transaction-amount ${transaction.type}`}>

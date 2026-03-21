@@ -4,6 +4,7 @@ export interface SavingGoal {
   account_id?: string | null
   name: string
   target_amount: number
+  actual_amount: number
   currency: string
   deadline?: string | null
 }

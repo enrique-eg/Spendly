@@ -14,6 +14,9 @@ export default function GoalsPage(){
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [showAdjustModal, setShowAdjustModal] = useState(false)
+  const [adjustingGoal, setAdjustingGoal] = useState<SavingGoal | null>(null)
+  const [adjustAmount, setAdjustAmount] = useState('')
   const [formData, setFormData] = useState({ name: '', target_amount: '', currency: 'USD', account_id: '', deadline: '' })
 
   useEffect(() => {
@@ -137,7 +140,7 @@ export default function GoalsPage(){
     setGoals(goals.filter(g => g.id !== id))
   }
 
-  const totalSaved = goals.reduce((sum) => sum + 0, 0)
+  const totalSaved = goals.reduce((sum, g) => sum + (Number(g.actual_amount) || 0), 0)
 
   const formatDeadlineForDisplay = (dl?: string | null) => {
     if (!dl) return '—'
@@ -186,12 +189,28 @@ export default function GoalsPage(){
                 <div className="goal-body">
                   <div className="goal-top">
                     <div className="goal-name">{g.name}</div>
-                    <div className="goal-target">${g.target_amount.toFixed(2)}</div>
+                    <div className="goal-target">${(g.target_amount || 0).toFixed(2)}</div>
                   </div>
                   <div className="goal-meta">Target: {g.deadline ? formatDeadlineForDisplay(g.deadline) : '—'}</div>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <div style={{ height: '10px', background: 'var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
+                      {(() => {
+                        const actual = Number(g.actual_amount) || 0
+                        const target = Number(g.target_amount) || 0
+                        const pct = target > 0 ? Math.min(100, Math.max(0, (actual / target) * 100)) : (actual > 0 ? 100 : 0)
+                        return (
+                          <div style={{ width: pct + '%', height: '100%', background: 'var(--primary)' }} />
+                        )
+                      })()}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                      ${Number(g.actual_amount || 0).toFixed(2)} saved · {g.target_amount ? Math.round(((Number(g.actual_amount || 0) / Number(g.target_amount || 0)) * 100) || 0) : 0}%
+                    </div>
+                  </div>
                 </div>
                 <div className="goal-actions">
                   <button className="action-btn edit" onClick={() => handleEdit(g)}><span className="material-symbols-outlined">edit</span></button>
+                  <button className="action-btn" onClick={() => { setAdjustingGoal(g); setAdjustAmount(''); setShowAdjustModal(true) }} title="Adjust saved amount"><span className="material-symbols-outlined">add</span></button>
                   <button className="action-btn delete" onClick={() => handleDelete(g.id)}><span className="material-symbols-outlined">delete</span></button>
                 </div>
               </div>
@@ -237,6 +256,43 @@ export default function GoalsPage(){
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button type="submit" className="submit-btn">{editingId ? 'Save' : 'Create'}</button>
                   <button type="button" className="submit-btn" onClick={() => setShowModal(false)}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {showAdjustModal && adjustingGoal && (
+          <div className="modal-overlay" onClick={() => setShowAdjustModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Adjust Saved Amount</h2>
+                <button className="modal-close" onClick={() => setShowAdjustModal(false)}>✕</button>
+              </div>
+
+              <form className="modal-form" onSubmit={async (e) => {
+                e.preventDefault()
+                if (!adjustingGoal) return
+                const delta = parseFloat(adjustAmount || '0')
+                if (isNaN(delta)) { alert('Please enter a valid number'); return }
+                const newActual = (Number(adjustingGoal.actual_amount) || 0) + delta
+                const { data, error } = await updateGoal(adjustingGoal.id, { actual_amount: newActual })
+                if (error) {
+                  console.error('Error adjusting goal', error)
+                  alert('Error updating goal')
+                  return
+                }
+                setGoals(goals.map(g => g.id === adjustingGoal.id ? (data as SavingGoal) : g))
+                setShowAdjustModal(false)
+                setAdjustingGoal(null)
+              }}>
+                <div className="form-group">
+                  <label>Amount (positive or negative)</label>
+                  <input type="number" step="0.01" value={adjustAmount} onChange={(e) => setAdjustAmount(e.target.value)} placeholder="e.g. 50 or -20" required />
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button type="submit" className="submit-btn">Apply</button>
+                  <button type="button" className="submit-btn" onClick={() => setShowAdjustModal(false)}>Cancel</button>
                 </div>
               </form>
             </div>
