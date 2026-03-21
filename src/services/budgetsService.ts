@@ -1,9 +1,9 @@
 import supabase from './supabaseClient'
-import { Budget } from '../models/Budget'
+import type { Budget } from '../models/Budget'
 
 export async function getBudgets() {
   try {
-    const { data, error } = await supabase.from<Budget>('budgets').select('*')
+    const { data, error } = await supabase.from('budgets').select('*')
     return { data, error }
   } catch (error) {
     return { data: null, error }
@@ -13,7 +13,7 @@ export async function getBudgets() {
 export async function getBudgetById(id: string) {
   try {
     const { data, error } = await supabase
-      .from<Budget>('budgets')
+      .from('budgets')
       .select('*')
       .eq('id', id)
       .maybeSingle()
@@ -26,7 +26,7 @@ export async function getBudgetById(id: string) {
 export async function createBudget(budget: Partial<Budget>) {
   try {
     const { data, error } = await supabase
-      .from<Budget>('budgets')
+      .from('budgets')
       .insert(budget)
       .select()
       .single()
@@ -39,7 +39,7 @@ export async function createBudget(budget: Partial<Budget>) {
 export async function updateBudget(id: string, budget: Partial<Budget>) {
   try {
     const { data, error } = await supabase
-      .from<Budget>('budgets')
+      .from('budgets')
       .update(budget)
       .eq('id', id)
       .select()
@@ -52,7 +52,7 @@ export async function updateBudget(id: string, budget: Partial<Budget>) {
 
 export async function deleteBudget(id: string) {
   try {
-    const { data, error } = await supabase.from<Budget>('budgets').delete().eq('id', id)
+    const { data, error } = await supabase.from('budgets').delete().eq('id', id)
     return { data, error }
   } catch (error) {
     return { data: null, error }

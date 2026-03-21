@@ -1,71 +1,90 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import supabase from './services/supabaseClient'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import SignInPage from "./pages/sign-in/sign-in"
+import SignUp from "./pages/sign-up/sign-up"
+import HomePage from "./pages/home-page/home-page"
+import Profile from "./pages/personal-profile/personal-profile"
+import SubscriptionsPage from './pages/subscriptions/subscriptions'
+import GoalsPage from './pages/goals/goals'
+import BudgetsPage from './pages/budgets/budgets'
+import AIPage from './pages/ai/ai'
+import { AuthProvider, useAuth } from "./context/AuthContext"
+import BottomNav from './components/bottomNav/BottomNav'
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
+  return user ? <>{children}<BottomNav/></> : <Navigate to="/sign-in" />
+}
+
+function AuthRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
+  return !user ? <>{children}</> : <Navigate to="/home" />
+}
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking')
-  const [dbError, setDbError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let mounted = true
-    async function checkDb() {
-      try {
-        // lightweight check: select 1 id from a small table
-        const { data, error } = await supabase.from('profiles').select('id').limit(1)
-        if (!mounted) return
-        if (error) {
-          // network error or server error
-          setDbStatus('error')
-          setDbError(error.message ?? String(error))
-        } else {
-          setDbStatus('connected')
-          setDbError(null)
-        }
-      } catch (err: any) {
-        if (!mounted) return
-        setDbStatus('error')
-        setDbError(err?.message ?? String(err))
-      }
-    }
-    checkDb()
-    return () => {
-      mounted = false
-    }
-  }, [])
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div style={{ marginBottom: 12 }}>
-        {dbStatus === 'checking' && <span>Comprobando conexión a la base de datos…</span>}
-        {dbStatus === 'connected' && <span style={{ color: 'green' }}>Conectado a la base de datos</span>}
-        {dbStatus === 'error' && (
-          <span style={{ color: 'red' }}>Error al conectar: {dbError}</span>
-        )}
-      </div>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+
+          {/* LOGIN */}
+          <Route 
+            path="/sign-in" 
+            element={
+              <AuthRoute>
+                <SignInPage />
+              </AuthRoute>
+            } 
+          />
+
+          {/* ROOT */}
+          <Route 
+            path="/" 
+            element={
+              <AuthRoute>
+                <SignInPage />
+              </AuthRoute>
+            } 
+          />
+
+          {/* REGISTER NUEVO */}
+          <Route 
+            path="/sign-up" 
+            element={
+              <AuthRoute>
+                <SignUp />
+              </AuthRoute>
+            } 
+          />
+
+          {/* HOME (equipo) */}
+          <Route 
+            path="/home" 
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* PROFILE */}
+          <Route 
+            path="/personal-profile" 
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Placeholder pages for bottom nav */}
+          <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage/></ProtectedRoute>} />
+          <Route path="/goals" element={<ProtectedRoute><GoalsPage/></ProtectedRoute>} />
+          <Route path="/budgets" element={<ProtectedRoute><BudgetsPage/></ProtectedRoute>} />
+          <Route path="/ai" element={<ProtectedRoute><AIPage/></ProtectedRoute>} />
+
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 

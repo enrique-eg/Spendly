@@ -1,9 +1,13 @@
 import supabase from './supabaseClient'
-import { Transaction } from '../models/Transaction'
+import type { Transaction } from '../models/Transaction'
 
-export async function getTransactions() {
+export async function getTransactionsByUser(userId: string) {
   try {
-    const { data, error } = await supabase.from<Transaction>('transactions').select('*')
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
     return { data, error }
   } catch (error) {
     return { data: null, error }
@@ -13,7 +17,7 @@ export async function getTransactions() {
 export async function getTransactionsByAccount(accountId: string) {
   try {
     const { data, error } = await supabase
-      .from<Transaction>('transactions')
+      .from('transactions')
       .select('*')
       .eq('account_id', accountId)
     return { data, error }
@@ -25,7 +29,7 @@ export async function getTransactionsByAccount(accountId: string) {
 export async function createTransaction(transaction: Partial<Transaction>) {
   try {
     const { data, error } = await supabase
-      .from<Transaction>('transactions')
+      .from('transactions')
       .insert(transaction)
       .select()
       .single()
@@ -38,7 +42,7 @@ export async function createTransaction(transaction: Partial<Transaction>) {
 export async function updateTransaction(id: string, transaction: Partial<Transaction>) {
   try {
     const { data, error } = await supabase
-      .from<Transaction>('transactions')
+      .from('transactions')
       .update(transaction)
       .eq('id', id)
       .select()
@@ -51,7 +55,7 @@ export async function updateTransaction(id: string, transaction: Partial<Transac
 
 export async function deleteTransaction(id: string) {
   try {
-    const { data, error } = await supabase.from<Transaction>('transactions').delete().eq('id', id)
+    const { data, error } = await supabase.from('transactions').delete().eq('id', id)
     return { data, error }
   } catch (error) {
     return { data: null, error }

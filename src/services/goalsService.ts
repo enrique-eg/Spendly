@@ -1,9 +1,9 @@
 import supabase from './supabaseClient'
-import { SavingGoal } from '../models/SavingGoal'
+import type { SavingGoal } from '../models/SavingGoal'
 
 export async function getGoals() {
   try {
-    const { data, error } = await supabase.from<SavingGoal>('saving_goals').select('*')
+    const { data, error } = await supabase.from('saving_goals').select('*')
     return { data, error }
   } catch (error) {
     return { data: null, error }
@@ -13,7 +13,7 @@ export async function getGoals() {
 export async function getGoalById(id: string) {
   try {
     const { data, error } = await supabase
-      .from<SavingGoal>('saving_goals')
+      .from('saving_goals')
       .select('*')
       .eq('id', id)
       .maybeSingle()
@@ -26,7 +26,7 @@ export async function getGoalById(id: string) {
 export async function createGoal(goal: Partial<SavingGoal>) {
   try {
     const { data, error } = await supabase
-      .from<SavingGoal>('saving_goals')
+      .from('saving_goals')
       .insert(goal)
       .select()
       .single()
@@ -39,7 +39,7 @@ export async function createGoal(goal: Partial<SavingGoal>) {
 export async function updateGoal(id: string, goal: Partial<SavingGoal>) {
   try {
     const { data, error } = await supabase
-      .from<SavingGoal>('saving_goals')
+      .from('saving_goals')
       .update(goal)
       .eq('id', id)
       .select()
@@ -52,7 +52,7 @@ export async function updateGoal(id: string, goal: Partial<SavingGoal>) {
 
 export async function deleteGoal(id: string) {
   try {
-    const { data, error } = await supabase.from<SavingGoal>('saving_goals').delete().eq('id', id)
+    const { data, error } = await supabase.from('saving_goals').delete().eq('id', id)
     return { data, error }
   } catch (error) {
     return { data: null, error }
