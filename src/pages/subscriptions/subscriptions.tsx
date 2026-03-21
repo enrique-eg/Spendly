@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import type { Subscription } from '../../models/Subscription'
 import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription } from '../../services/subscriptionsService'
+import { getTransactionsByAccount, createTransaction } from '../../services/transactionsService'
 import { getAccountsByUser } from '../../services/accountsService'
 import './subscriptions.css'
 
@@ -30,6 +31,62 @@ export default function SubscriptionsPage(){
       }
       if (accData) setAccounts(accData)
       setLoading(false)
+
+      // After loading subscriptions, check for due charges and create transactions if needed
+      (async function processDueCharges() {
+        try {
+          const today = new Date()
+          const monthKey = `${today.getFullYear()}-${today.getMonth()+1}`
+          // prevent re-running this check multiple times per session
+          if (sessionStorage.getItem('subs_charged_' + monthKey)) return
+
+          for (const s of (data as Subscription[]).filter(ss => ss.user_id === user.id && ss.is_active)) {
+            if (!s.billing_day || !s.account_id) continue
+            const day = Number(s.billing_day)
+            if (!day) continue
+            // compute billing day for this month
+            const lastDay = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate()
+            const billDay = Math.min(day, lastDay)
+            if (today.getDate() !== billDay) continue
+
+            // check existing transactions for this account in this month referencing this subscription
+            const { data: txs, error: txErr } = await getTransactionsByAccount(s.account_id)
+            if (txErr) { console.error('Error fetching transactions for account', s.account_id, txErr); continue }
+            const already = (txs || []).some((t: any) => {
+              const desc = String(t.description || '')
+              // look for marker 'subscription:<id>'
+              if (desc.includes(`subscription:${s.id}`)) return true
+              // or same amount and description name and same month
+              const created = t.transaction_date || t.created_at
+              if (!created) return false
+              const d = new Date(created)
+              return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && Number(t.amount) === Number(s.amount)
+            })
+            if (already) continue
+
+            // create transaction as expense
+            const txPayload = {
+              user_id: user.id,
+              account_id: s.account_id,
+              type: 'expense',
+              amount: s.amount,
+              currency: s.currency || defaultCurrency,
+              description: `Subscription: ${s.name} subscription:${s.id}`,
+              transaction_date: today.toISOString()
+            }
+            const { data: createdTx, error: createErr } = await createTransaction(txPayload)
+            if (createErr) {
+              console.error('Error creating subscription transaction for', s.id, createErr)
+            } else {
+              console.log('Created subscription transaction', createdTx)
+            }
+          }
+
+          sessionStorage.setItem('subs_charged_' + monthKey, '1')
+        } catch (err) {
+          console.error('processDueCharges error', err)
+        }
+      })()
     }
     load()
   }, [user])
