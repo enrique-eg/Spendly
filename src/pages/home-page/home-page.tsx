@@ -8,6 +8,7 @@ import { getUserProfile } from '../../services/profilesService';
 import { getSubscriptions } from '../../services/subscriptionsService';
 //import { getExchangeRate } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
+import { formatDateWithoutTimezone } from '../../utils/dateFormatter';
 import type { Transaction } from '../../models/Transaction';
 import './home-page.css';
 
@@ -330,11 +331,11 @@ export default function HomePage() {
                 </div>
                 <div className="transaction-info">
                   <p className="transaction-name">{(transaction.description || 'Transacción').replace(/\s*subscription:[^\s]+$/, '')}</p>
-                  <p className="transaction-meta">{transaction.currency} • {transaction.transaction_date}</p>
+                  <p className="transaction-meta">{transaction.currency} • {formatDateWithoutTimezone(transaction.transaction_date)}</p>
+                  <p className={`transaction-amount ${transaction.type}`}>
+                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                  </p>
                 </div>
-                <p className={`transaction-amount ${transaction.type}`}>
-                  {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                </p>
                 <div className="transaction-actions">
                   <button
                     className="action-btn edit"

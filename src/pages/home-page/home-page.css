@@ -162,7 +162,7 @@
 }
 
 .stat-amount {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 
@@ -206,6 +206,12 @@
   padding: 1rem;
   border-radius: 1rem;
   border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.transaction-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .transaction-icon {
@@ -217,47 +223,72 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.transaction-card:hover .transaction-icon {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .transaction-icon.income {
-  background: rgba(23, 207, 84, 0.1);
-  color: var(--primary);
+  background: rgba(23, 207, 84, 0.15);
+  color: rgba(23, 207, 84, 0.9);
+}
+
+.transaction-icon.expense {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .transaction-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .transaction-name {
   font-weight: 700;
   margin: 0;
   font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.2;
 }
 
 .transaction-meta {
   font-size: 0.75rem;
   color: var(--text-secondary);
-  margin: 0.25rem 0 0 0;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .transaction-amount {
   font-weight: 700;
   font-size: 1rem;
-  margin: 0;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.2;
 }
 
 .transaction-amount.expense {
-  color: var(--danger);
+  color: rgba(255, 59, 48, 0.9);
 }
 
 .transaction-amount.income {
-  color: var(--primary);
+  color: rgba(23, 207, 84, 0.9);
 }
 
 .transaction-actions {
   display: flex;
   gap: 0.5rem;
-  margin-left: 0.5rem;
+  margin-left: auto;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.transaction-card:hover .transaction-actions {
+  opacity: 1;
 }
 
 .action-btn {
@@ -265,20 +296,28 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.35rem;
+  padding: 0.4rem;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 1.1rem;
 }
 
 .action-btn:hover {
   color: var(--text-primary);
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.1);
 }
 
 .action-btn.delete {
   color: var(--danger);
+}
+
+.action-btn.delete:hover {
+  color: var(--danger);
+  background: rgba(255, 59, 48, 0.2);
 }
 
 .submit-btn.danger, .danger {
