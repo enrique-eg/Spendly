@@ -6,7 +6,7 @@ import { getAccountsByUser } from '../../services/accountsService';
 import { getCurrencies } from '../../services/currenciesService';
 import { getUserProfile } from '../../services/profilesService';
 import { getSubscriptions } from '../../services/subscriptionsService';
-//import { getExchangeRate } from '../../services/exchangeRatesService';
+import { convertFromEUR } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import { formatDateWithoutTimezone } from '../../utils/dateFormatter';
 import type { Transaction } from '../../models/Transaction';
@@ -18,6 +18,7 @@ export default function HomePage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [currencies, setCurrencies] = useState<any[]>([]);
+  const [currencySymbols, setCurrencySymbols] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -27,6 +28,8 @@ export default function HomePage() {
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [defaultCurrency, setDefaultCurrency] = useState('USD');
+  const [totalExpensesConverted, setTotalExpensesConverted] = useState(0);
+  const [totalIncomeConverted, setTotalIncomeConverted] = useState(0);
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -61,6 +64,14 @@ export default function HomePage() {
 
       if (!currError && currData) {
         setCurrencies(currData);
+        // Create symbol mapping from currencies table
+        const symbolMap: Record<string, string> = {};
+        currData.forEach((curr: any) => {
+          if (curr.code && curr.symbol) {
+            symbolMap[curr.code] = curr.symbol;
+          }
+        });
+        setCurrencySymbols(symbolMap);
         if (currData.length > 0) {
           setFormData(prev => ({ ...prev, currency: currData[0].code }));
         }
@@ -155,6 +166,31 @@ export default function HomePage() {
 
     loadData();
   }, [user]);
+
+  // Convert totals to default currency
+  useEffect(() => {
+    const convertTotals = async () => {
+      const totalExpensesEUR = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + (t.amount_converted || t.amount || 0), 0);
+
+      const totalIncomeEUR = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + (t.amount_converted || t.amount || 0), 0);
+
+      if (defaultCurrency === 'EUR') {
+        setTotalExpensesConverted(totalExpensesEUR);
+        setTotalIncomeConverted(totalIncomeEUR);
+      } else {
+        const expensesConverted = await convertFromEUR(totalExpensesEUR, defaultCurrency);
+        const incomeConverted = await convertFromEUR(totalIncomeEUR, defaultCurrency);
+        setTotalExpensesConverted(expensesConverted);
+        setTotalIncomeConverted(incomeConverted);
+      }
+    };
+
+    convertTotals();
+  }, [transactions, defaultCurrency]);
 
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,13 +295,13 @@ export default function HomePage() {
 
   const totalExpenses = transactions
     .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + (t.amount_converted || t.amount || 0), 0);
 
   const totalIncome = transactions
     .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + (t.amount_converted || t.amount || 0), 0);
 
-  const totalBalance = totalIncome - totalExpenses;
+  const totalBalance = totalIncomeConverted - totalExpensesConverted;
 
   return (
     <div className="home-page">
@@ -294,7 +330,7 @@ export default function HomePage() {
               <span className="balance-label">Balance</span>
               <span className="material-symbols-outlined">payments</span>
             </div>
-            <div className="balance-amount">${totalBalance.toFixed(2)}</div>
+            <div className="balance-amount">{currencySymbols[defaultCurrency] || defaultCurrency}{totalBalance.toFixed(2)}</div>
           </div>
 
           <div className="stats-grid">
@@ -302,14 +338,14 @@ export default function HomePage() {
               <div className="stat-header">
                 <span className="stat-label">Income</span>
               </div>
-              <div className="stat-amount">${totalIncome.toFixed(2)}</div>
+              <div className="stat-amount">{currencySymbols[defaultCurrency] || defaultCurrency}{totalIncomeConverted.toFixed(2)}</div>
             </div>
 
             <div className="stat-card expense">
               <div className="stat-header">
                 <span className="stat-label">Expenses</span>
               </div>
-              <div className="stat-amount">-${totalExpenses.toFixed(2)}</div>
+              <div className="stat-amount">-{currencySymbols[defaultCurrency] || defaultCurrency}{totalExpensesConverted.toFixed(2)}</div>
             </div>
           </div>
         </div>
@@ -331,9 +367,9 @@ export default function HomePage() {
                 </div>
                 <div className="transaction-info">
                   <p className="transaction-name">{(transaction.description || 'Transacción').replace(/\s*subscription:[^\s]+$/, '')}</p>
-                  <p className="transaction-meta">{transaction.currency} • {formatDateWithoutTimezone(transaction.transaction_date)}</p>
+                  <p className="transaction-meta">{currencySymbols[transaction.currency] || transaction.currency} {transaction.currency} • {formatDateWithoutTimezone(transaction.transaction_date)}</p>
                   <p className={`transaction-amount ${transaction.type}`}>
-                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                    {transaction.type === 'income' ? '+' : '-'}{currencySymbols[transaction.currency] || transaction.currency}{transaction.amount.toFixed(2)}
                   </p>
                 </div>
                 <div className="transaction-actions">
