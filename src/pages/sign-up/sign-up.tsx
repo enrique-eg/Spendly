@@ -138,6 +138,7 @@ export default function SignUp(){
           <div className="input-box">
             <img src={reloadIcon} className="input-icon" />
             <input
+              type={showPassword ? "text" : "password"}
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e)=>setConfirmPassword(e.target.value)}

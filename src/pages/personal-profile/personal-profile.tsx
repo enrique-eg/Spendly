@@ -6,8 +6,8 @@ import bellIcon from "../../assets/notification-bell.png"
 import premiumIcon from "../../assets/premium-quality.png"
 import cardIcon from "../../assets/credit-card.png"
 import bankIcon from "../../assets/bank.png"
+import BankConnectModal, { BANK_COLORS } from "../../components/bankConnectModal/BankConnectModal"
 import Swal from "sweetalert2"
-
 import { useAuth } from "../../context/AuthContext"
 import supabase from "../../services/supabaseClient"
 import { useNavigate } from "react-router-dom"
@@ -27,12 +27,10 @@ export default function Profile(){
     { id: 2, type: "Mastercard", last4: "5678", active: false }
   ])
 
-  const [accounts, setAccounts] = useState([
-    { id: 1, iban: "ES91 **** 1234", owner: "Juan Pérez", bank: "Santander", active: true },
-    { id: 2, iban: "ES12 **** 5678", owner: "Juan Pérez", bank: "BBVA", active: false }
-  ])
+  const [accounts, setAccounts] = useState<any[]>([])
+  const [showBankModal, setShowBankModal] = useState(false)
+  
 
-  // 🔥 cargar perfil
   useEffect(() => {
     if(!user) return
 
@@ -54,7 +52,20 @@ export default function Profile(){
     fetchProfile()
   }, [user])
 
-  // 🔥 estado premium
+  // Fetch bank accounts from Supabase
+  useEffect(() => {
+    if (!user) return
+    const fetchAccounts = async () => {
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("type", "bank")
+      if (!error && data) setAccounts(data)
+    }
+    fetchAccounts()
+  }, [user])
+
   const isPremium = profile?.premium_until 
     && new Date(profile.premium_until) > new Date()
 
@@ -62,7 +73,6 @@ export default function Profile(){
     ? new Date(profile.premium_until).toLocaleDateString()
     : null
 
-  // 🔥 cancelar suscripción
   async function handleCancelSubscription(){
 
     const confirm = await Swal.fire({
@@ -124,12 +134,31 @@ export default function Profile(){
     )
   }
 
-  function toggleAccount(id: number){
-    setAccounts(prev =>
-      prev.map(a => a.id === id ? { ...a, active: !a.active } : a)
-    )
-  }
+  async function toggleAccount(id: string) {
+    const account = accounts.find(a => a.id === id)
+    if (!account) return
 
+    const newState = !account.is_active
+
+    // Primero actualiza visualmente
+    setAccounts(prev =>
+      prev.map(a => a.id === id ? { ...a, is_active: newState } : a)
+    )
+
+    // Luego guarda en Supabase
+    const { error } = await supabase
+      .from("accounts")
+      .update({ is_active: newState })
+      .eq("id", id)
+
+    if (error) {
+      console.error(error)
+      // Si falla, revertir el cambio visual
+      setAccounts(prev =>
+        prev.map(a => a.id === id ? { ...a, is_active: !newState } : a)
+      )
+    }
+  }
   async function handleLogout(){
     const result = await Swal.fire({
       title: "Log out?",
@@ -262,7 +291,7 @@ export default function Profile(){
           </div>
         )}
 
-        <div className="setting-item clickable" onClick={()=>setShowAccounts(prev => !prev)}>
+        <div className="setting-item clickable" onClick={() => setShowAccounts(prev => !prev)}>
           <span className="setting-left">
             <img src={bankIcon} className="icon" />
             Bank Accounts
@@ -274,22 +303,38 @@ export default function Profile(){
           <div className="dropdown">
             {accounts.map(acc => (
               <div key={acc.id} className="dropdown-item">
-                <span>
-                  {acc.iban}
-                  <br/>
-                  <small>{acc.owner} - {acc.bank}</small>
-                </span>
-
-                <div 
-                  className={`toggle ${acc.active ? "active" : ""}`}
-                  onClick={(e)=>{
-                    e.stopPropagation()
-                    toggleAccount(acc.id)
-                  }}
+                <div className="account-card-row">
+                  <div
+                    className="bank-logo-dot"
+                    style={{ background: BANK_COLORS[acc.bank_name] || "#22c55e" }}
+                  >
+                    {/* aquí metes el <img> con tu logo cuando lo tengas */}
+                    {acc.name?.slice(0, 3).toUpperCase()}
+                  </div>
+                  <div className="account-info">
+                    <span className="account-iban">{acc.account_number || "ES** **** ****"}</span>
+                    <small className="account-owner">{acc.owner_name || acc.name}</small>
+                  </div>
+                </div>
+                <div
+                  className={`toggle ${acc.is_active ? "active" : ""}`}
+                  onClick={(e) => { e.stopPropagation(); toggleAccount(acc.id) }}
                 />
               </div>
             ))}
+
+            <button className="add-account-btn" onClick={() => setShowBankModal(true)}>
+              + Add bank account
+            </button>
           </div>
+        )}
+
+        {showBankModal && (
+          <BankConnectModal
+            userId={user!.id}
+            onClose={() => setShowBankModal(false)}
+            onConnected={(newAccount) => setAccounts(prev => [...prev, newAccount])}
+          />
         )}
 
         <div className="setting-item">
