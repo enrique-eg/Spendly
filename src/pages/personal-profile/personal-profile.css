@@ -276,3 +276,19 @@ body{
 .clickable {
   cursor: pointer;
 }
+
+.delete-account-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  opacity: 0.5;
+  transition: opacity .15s;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.delete-account-btn:hover {
+  opacity: 1;
+}

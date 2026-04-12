@@ -57,6 +57,17 @@ export default function HomePage() {
           setFormData(prev => ({ ...prev, account_id: accData[0].id }));
         }
       }
+      if (!transError && transData && accData) {
+        const activeAccountIds = accData
+          .filter((acc: any) => acc.is_active)
+          .map((acc: any) => acc.id)
+
+        const filteredTransactions = transData.filter((t: any) =>
+          !t.account_id || activeAccountIds.includes(t.account_id)
+        )
+
+        setTransactions(filteredTransactions)
+      }
 
       if (!currError && currData) {
         setCurrencies(currData);

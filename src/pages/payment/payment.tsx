@@ -53,6 +53,7 @@ export default function Payment(){
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + days)
 
+    // Actualizar perfil premium
     await supabase
       .from("profiles")
       .update({
@@ -61,11 +62,31 @@ export default function Payment(){
       })
       .eq("id", user.id)
 
-    Swal.fire("Success ", "Payment completed", "success")
+    // Crear transacción del pago
+    const amount = type === "monthly" ? 15.99 : 99.99
 
+    const { data: accData } = await supabase
+      .from("accounts")
+      .select("id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .single()
+
+    await supabase
+      .from("transactions")
+      .insert({
+        user_id: user.id,
+        account_id: accData?.id || null,
+        type: "expense",
+        amount: amount,
+        currency: "USD",
+        description: `Spendly Premium - ${type === "monthly" ? "Monthly" : "Yearly"} plan`,
+        transaction_date: new Date().toISOString(),
+      })
+
+    Swal.fire("Success", "Payment completed", "success")
     navigate("/home")
   }
-
   return(
     <div className="payment-container">
 

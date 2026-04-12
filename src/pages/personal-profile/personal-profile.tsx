@@ -140,12 +140,10 @@ export default function Profile(){
 
     const newState = !account.is_active
 
-    // Primero actualiza visualmente
     setAccounts(prev =>
       prev.map(a => a.id === id ? { ...a, is_active: newState } : a)
     )
 
-    // Luego guarda en Supabase
     const { error } = await supabase
       .from("accounts")
       .update({ is_active: newState })
@@ -153,12 +151,36 @@ export default function Profile(){
 
     if (error) {
       console.error(error)
-      // Si falla, revertir el cambio visual
       setAccounts(prev =>
         prev.map(a => a.id === id ? { ...a, is_active: !newState } : a)
       )
     }
   }
+
+  async function deleteAccount(id: string) {
+    const confirm = await Swal.fire({
+      title: "Delete account?",
+      text: "This will also delete all transactions linked to this account",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete"
+    })
+
+    if (!confirm.isConfirmed) return
+
+    await supabase
+      .from("transactions")
+      .delete()
+      .eq("account_id", id)
+
+    await supabase
+      .from("accounts")
+      .delete()
+      .eq("id", id)
+
+    setAccounts(prev => prev.filter(a => a.id !== id))
+  }
+
   async function handleLogout(){
     const result = await Swal.fire({
       title: "Log out?",
@@ -308,18 +330,26 @@ export default function Profile(){
                     className="bank-logo-dot"
                     style={{ background: BANK_COLORS[acc.bank_name] || "#22c55e" }}
                   >
-                    {/* aquí metes el <img> con tu logo cuando lo tengas */}
-                    {acc.name?.slice(0, 3).toUpperCase()}
+                    {acc.bank_name?.slice(0, 4).toUpperCase()}
                   </div>
                   <div className="account-info">
                     <span className="account-iban">{acc.account_number || "ES** **** ****"}</span>
-                    <small className="account-owner">{acc.owner_name || acc.name}</small>
+                    <small className="account-owner">{acc.name}</small>
                   </div>
                 </div>
-                <div
-                  className={`toggle ${acc.is_active ? "active" : ""}`}
-                  onClick={(e) => { e.stopPropagation(); toggleAccount(acc.id) }}
-                />
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <button
+                    className="delete-account-btn"
+                    onClick={(e) => { e.stopPropagation(); deleteAccount(acc.id) }}
+                  >
+                    <span className="material-symbols-outlined">delete</span>
+
+                  </button>
+                  <div
+                    className={`toggle ${acc.is_active ? "active" : ""}`}
+                    onClick={(e) => { e.stopPropagation(); toggleAccount(acc.id) }}
+                  />
+                </div>
               </div>
             ))}
 
