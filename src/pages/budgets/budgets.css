@@ -115,3 +115,11 @@
     padding: 0.45rem 0.75rem;
   }
 }
+
+.section-divider {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin: 20px 0 8px;
+}

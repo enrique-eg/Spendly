@@ -62,7 +62,6 @@ export default function Payment(){
       })
       .eq("id", user.id)
 
-    // Crear transacción del pago
     const amount = type === "monthly" ? 15.99 : 99.99
 
     const { data: accData } = await supabase

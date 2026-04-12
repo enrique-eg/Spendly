@@ -3,7 +3,8 @@ import { useAuth } from '../../context/AuthContext'
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import { getAccountsByUser } from '../../services/accountsService'
 import { getBudgets, createBudget, updateBudget, deleteBudget } from '../../services/budgetsService'
-import { getTransactionsByAccountInRange } from '../../services/transactionsService'
+import { getTransactionsByAccountInRange, getTransactionsByUser } from '../../services/transactionsService'
+import { getCategories } from '../../services/categoriesService'
 import type { Budget } from '../../models/Budget'
 import './budgets.css'
 
@@ -11,6 +12,7 @@ function BudgetsPageInner(){
   const { user } = useAuth()
   const [showSettings, setShowSettings] = useState(false)
   const [accounts, setAccounts] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -20,9 +22,14 @@ function BudgetsPageInner(){
       setLoading(true)
       const { data: accData } = await getAccountsByUser(user.id)
       const { data: bData } = await getBudgets()
+      const { data: catData } = await getCategories()
+
       setAccounts(accData || [])
+      setCategories((catData || []).filter((c: any) => c.type === 'expense'))
+
       if (bData) setBudgets((bData as Budget[]).filter(b => b.user_id === user.id && b.period === 'monthly'))
       else setBudgets([])
+
       setLoading(false)
     }
     load()
@@ -34,56 +41,95 @@ function BudgetsPageInner(){
       const start = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
       const end = new Date(today.getFullYear(), today.getMonth()+1, 0).toISOString().split('T')[0]
       const { data: txs, error } = await getTransactionsByAccountInRange(accountId, start, end)
-      if (error) { console.error('Error fetching txs in range', error); return 0 }
-      const spent = (txs || []).reduce((sum: number, t: any) => sum + Number(t.amount || 0), 0)
-      return spent
+      if (error) { console.error(error); return 0 }
+      return (txs || []).reduce((sum: number, t: any) => sum + Number(t.amount || 0), 0)
     } catch (err) {
-      console.error('getSpentForAccount error', err)
+      console.error(err)
+      return 0
+    }
+  }
+
+  const getSpentForCategory = async (categoryId: string) => {
+    try {
+      const today = new Date()
+      const start = new Date(today.getFullYear(), today.getMonth(), 1)
+      const end = new Date(today.getFullYear(), today.getMonth()+1, 0)
+      const { data: txs } = await getTransactionsByUser(user!.id)
+      return (txs || [])
+        .filter((t: any) => {
+          const d = new Date(t.transaction_date)
+          return t.category_id === categoryId &&
+            t.type === 'expense' &&
+            d >= start &&
+            d <= end
+        })
+        .reduce((sum: number, t: any) => sum + Number(t.amount || 0), 0)
+    } catch (err) {
+      console.error(err)
       return 0
     }
   }
 
   const handleSaveLimit = async (accountId: string, amount: number) => {
     if (!user) return
-    if (!isFinite(amount) || amount <= 0) {
-      alert('Por favor introduce un importe válido mayor que 0')
-      return
-    }
-    // check existing
+    if (!isFinite(amount) || amount <= 0) { alert('Introduce un importe válido mayor que 0'); return }
     const existing = budgets.find(b => b.account_id === accountId)
+    const today = new Date()
     const payload: Partial<Budget> = {
       user_id: user.id,
       account_id: accountId,
       limit_amount: amount,
       currency: 'USD',
-      period: 'monthly'
-    }
-    // Ensure DB non-nullable dates are set for new budgets: start_date = first day of current month
-    if (!existing) {
-      const today = new Date()
-      const startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
-      payload.start_date = startDate
+      period: 'monthly',
+      ...(!existing && { start_date: new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0] })
     }
     try {
       if (existing) {
         const { data, error } = await updateBudget(existing.id, payload)
-        if (error) { const msg = (error as any)?.message || JSON.stringify(error); alert('Error updating budget: ' + msg); console.error(error); return }
+        if (error) { alert('Error updating: ' + (error as any)?.message); return }
         setBudgets(budgets.map(b => b.id === existing.id ? (data as Budget) : b))
       } else {
         const { data, error } = await createBudget(payload)
-        if (error) { const msg = (error as any)?.message || JSON.stringify(error); alert('Error creating budget: ' + msg); console.error(error); return }
+        if (error) { alert('Error creating: ' + (error as any)?.message); return }
         setBudgets([data as Budget, ...budgets])
       }
     } catch (err) {
-      console.error('handleSaveLimit error', err)
-      alert('Error guardando límite: ' + ((err as any)?.message || String(err)))
+      alert('Error: ' + ((err as any)?.message || String(err)))
+    }
+  }
+
+  const handleSaveCategoryLimit = async (categoryId: string, amount: number) => {
+    if (!user) return
+    if (!isFinite(amount) || amount <= 0) { alert('Introduce un importe válido mayor que 0'); return }
+    const existing = budgets.find(b => b.category_id === categoryId)
+    const today = new Date()
+    const payload: Partial<Budget> = {
+      user_id: user.id,
+      category_id: categoryId,
+      limit_amount: amount,
+      currency: 'USD',
+      period: 'monthly',
+      start_date: new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
+    }
+    try {
+      if (existing) {
+        const { data, error } = await updateBudget(existing.id, payload)
+        if (error) { alert('Error updating: ' + (error as any)?.message); return }
+        setBudgets(budgets.map(b => b.id === existing.id ? (data as Budget) : b))
+      } else {
+        const { data, error } = await createBudget(payload)
+        if (error) { alert('Error creating: ' + (error as any)?.message); return }
+        setBudgets([data as Budget, ...budgets])
+      }
+    } catch (err) {
+      alert('Error: ' + ((err as any)?.message || String(err)))
     }
   }
 
   const handleRemove = async (id: string) => {
     if (!confirm('Eliminar límite?')) return
     const { error } = await deleteBudget(id)
-    if (error) { alert('Error eliminando'); console.error(error); return }
+    if (error) { alert('Error eliminando'); return }
     setBudgets(budgets.filter(b => b.id !== id))
   }
 
@@ -105,26 +151,53 @@ function BudgetsPageInner(){
       <div className="budgets-page">
         <main className="budgets-main">
           {loading && <p>Cargando...</p>}
-          {!loading && accounts.length === 0 && <p>No tienes cuentas</p>}
 
-          <div className="budgets-list">
-            {accounts.map(a => {
-              const b = budgets.find(x => x.account_id === a.id)
-              return (
-                <AccountBudgetCard
-                  key={a.id}
-                  account={a}
-                  budget={b}
-                  getSpent={() => getSpentForAccount(a.id)}
-                  onSave={(amt: number) => handleSaveLimit(a.id, amt)}
-                  onRemove={() => b && handleRemove(b.id)}
-                />
-              )
-            })}
-          </div>
+          {/* CUENTAS */}
+          {!loading && accounts.length > 0 && (
+            <>
+              <p className="section-divider">By account</p>
+              <div className="budgets-list">
+                {accounts.map(a => {
+                  const b = budgets.find(x => x.account_id === a.id)
+                  return (
+                    <AccountBudgetCard
+                      key={a.id}
+                      account={a}
+                      budget={b}
+                      getSpent={() => getSpentForAccount(a.id)}
+                      onSave={(amt: number) => handleSaveLimit(a.id, amt)}
+                      onRemove={() => b && handleRemove(b.id)}
+                    />
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          {/* CATEGORÍAS */}
+          {!loading && categories.length > 0 && (
+            <>
+              <p className="section-divider">By category</p>
+              <div className="budgets-list">
+                {categories.map(cat => {
+                  const b = budgets.find(x => x.category_id === cat.id)
+                  return (
+                    <CategoryBudgetCard
+                      key={cat.id}
+                      category={cat}
+                      budget={b}
+                      getSpent={() => getSpentForCategory(cat.id)}
+                      onSave={(amt: number) => handleSaveCategoryLimit(cat.id, amt)}
+                      onRemove={() => b && handleRemove(b.id)}
+                    />
+                  )
+                })}
+              </div>
+            </>
+          )}
         </main>
 
-        <SettingsSidebar 
+        <SettingsSidebar
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
           userId={user?.id || ''}
@@ -168,7 +241,6 @@ function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove }: any)
             <div className="budget-name">{account.name}</div>
             <div className="budget-meta">Account</div>
           </div>
-
           <div className="budget-values-block">
             <div className="small-label">Spent this month</div>
             <div className="budget-values">${spent.toFixed(2)}</div>
@@ -176,19 +248,86 @@ function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove }: any)
             <div className="budget-values">${numericLimit.toFixed(2)}</div>
           </div>
         </div>
-
         <div className="progress-wrap">
           <div className="progress-bar"><div className={`progress-fill ${fillClass}`} style={{ width: pct + '%' }} /></div>
           <div className="progress-label">Progress: {pct}%</div>
         </div>
-
         <div className="budget-actions-row">
-          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="Monthly limit (USD)" aria-label="Monthly limit" />
+          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="Monthly limit (USD)" />
           <div className="actions-row">
-            <button className="submit-btn" onClick={() => {
-              const amt = parseFloat(limit || '0')
-              onSave(amt)
-            }}>Save limit</button>
+            <button className="submit-btn" onClick={() => onSave(parseFloat(limit || '0'))}>Save limit</button>
+            {budget && <button className="submit-btn danger" onClick={onRemove}>Remove limit</button>}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove }: any) {
+  const [limit, setLimit] = useState<string>(budget?.limit_amount ? String(budget.limit_amount) : '')
+  const [spent, setSpent] = useState(0)
+  const [, setLoading] = useState(true)
+
+  const CATEGORY_COLORS: Record<string, string> = {
+    Food: '#854F0B',
+    Transport: '#185FA5',
+    Entertainment: '#993C1D',
+    Health: '#0F6E56',
+    Housing: '#534AB7',
+    Shopping: '#993556',
+    Bills: '#3B6D11',
+    Subscriptions: '#5F5E5A',
+    Travel: '#0C447C',
+    Education: '#633806',
+    Other: '#444441',
+  }
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      setLoading(true)
+      const s = await getSpent()
+      if (mounted) setSpent(Number(s) || 0)
+      setLoading(false)
+    }
+    load()
+    return () => { mounted = false }
+  }, [getSpent])
+
+  const numericLimit = Number(budget?.limit_amount ?? limit) || 0
+  const pct = numericLimit > 0 ? Math.min(100, Math.round((spent / numericLimit) * 100)) : 0
+  const fillClass = pct < 34 ? 'fill-green' : (pct < 67 ? 'fill-yellow' : 'fill-red')
+  const avatarColor = CATEGORY_COLORS[category.name] || '#534AB7'
+
+  return (
+    <div className="budget-card">
+      <div className="budget-left">
+        <div className="budget-avatar" style={{ background: avatarColor }}>
+          {(category.name || 'C').charAt(0).toUpperCase()}
+        </div>
+      </div>
+      <div className="budget-body">
+        <div className="budget-top">
+          <div>
+            <div className="budget-name">{category.name}</div>
+            <div className="budget-meta">Category</div>
+          </div>
+          <div className="budget-values-block">
+            <div className="small-label">Spent this month</div>
+            <div className="budget-values">${spent.toFixed(2)}</div>
+            <div className="small-label">Monthly limit</div>
+            <div className="budget-values">${numericLimit.toFixed(2)}</div>
+          </div>
+        </div>
+        <div className="progress-wrap">
+          <div className="progress-bar"><div className={`progress-fill ${fillClass}`} style={{ width: pct + '%' }} /></div>
+          <div className="progress-label">Progress: {pct}%</div>
+        </div>
+        <div className="budget-actions-row">
+          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="Monthly limit (USD)" />
+          <div className="actions-row">
+            <button className="submit-btn" onClick={() => onSave(parseFloat(limit || '0'))}>Save limit</button>
             {budget && <button className="submit-btn danger" onClick={onRemove}>Remove limit</button>}
           </div>
         </div>
@@ -228,4 +367,3 @@ export default function BudgetsPage(){
     </BudgetsErrorBoundary>
   )
 }
-
