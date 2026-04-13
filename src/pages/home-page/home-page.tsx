@@ -6,6 +6,7 @@ import { getAccountsByUser } from '../../services/accountsService';
 import { getCurrencies } from '../../services/currenciesService';
 import { getUserProfile } from '../../services/profilesService';
 import { getSubscriptions } from '../../services/subscriptionsService';
+import { getCategories } from '../../services/categoriesService';
 //import { getExchangeRate } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import type { Transaction } from '../../models/Transaction';
@@ -17,6 +18,7 @@ export default function HomePage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [currencies, setCurrencies] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -32,6 +34,7 @@ export default function HomePage() {
     type: 'expense' as 'income' | 'expense' | 'transfer',
     currency: 'USD',
     account_id: '',
+    category_id: '',
     transaction_date: new Date().toISOString().split('T')[0]
   });
 
@@ -44,12 +47,9 @@ export default function HomePage() {
       const { data: accData, error: accError } = await getAccountsByUser(user.id);
       const { data: currData, error: currError } = await getCurrencies();
       const { data: profileData, error: profileError } = await getUserProfile(user.id);
-      
-      if (transError) {
-        setError('Error al cargar las transacciones');
-      } else {
-        setTransactions(transData || []);
-      }
+      const { data: catData } = await getCategories();
+
+      setCategories(catData || []);
 
       if (!accError && accData) {
         setAccounts(accData);
@@ -57,16 +57,17 @@ export default function HomePage() {
           setFormData(prev => ({ ...prev, account_id: accData[0].id }));
         }
       }
+
       if (!transError && transData && accData) {
         const activeAccountIds = accData
           .filter((acc: any) => acc.is_active)
           .map((acc: any) => acc.id)
-
         const filteredTransactions = transData.filter((t: any) =>
           !t.account_id || activeAccountIds.includes(t.account_id)
         )
-
-        setTransactions(filteredTransactions)
+        setTransactions(filteredTransactions);
+      } else if (transError) {
+        setError('Error al cargar las transacciones');
       }
 
       if (!currError && currData) {
@@ -82,13 +83,10 @@ export default function HomePage() {
 
       setLoading(false);
 
-      // After loading subscriptions (and accounts), check for due subscription charges and create transactions if needed
       ;(async function processDueCharges() {
         try {
           const { data: subsData } = await getSubscriptions()
           const today = new Date()
-          
-
           const monthStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), 1)
           const addOneMonth = (d: Date) => new Date(d.getFullYear(), d.getMonth() + 1, 1)
 
@@ -99,7 +97,6 @@ export default function HomePage() {
 
             const createdAt = s.created_at ? new Date(s.created_at) : null
             const startMonth = createdAt ? monthStart(createdAt) : monthStart(today)
-
             const { data: txs, error: txErr } = await getTransactionsByAccount(s.account_id)
             if (txErr) { console.error('Error fetching transactions for account', s.account_id, txErr); continue }
 
@@ -110,18 +107,10 @@ export default function HomePage() {
               const billDay = Math.min(day, lastDayOfMonth)
               const chargeDate = new Date(year, monthIndex, billDay)
 
-              // per-subscription/month guard to avoid duplicate creation across runs
               const subMonthKey = `subs_charged_${s.id}_${year}-${monthIndex+1}`
-              if (sessionStorage.getItem(subMonthKey)) {
-                continue
-              }
-
-              if (chargeDate > today) {
-                continue
-              }
-              if (createdAt && chargeDate < createdAt) {
-                continue
-              }
+              if (sessionStorage.getItem(subMonthKey)) continue
+              if (chargeDate > today) continue
+              if (createdAt && chargeDate < createdAt) continue
 
               const matchingTx = (txs || []).find((t: any) => {
                 const desc = String(t.description || '').trim()
@@ -130,12 +119,9 @@ export default function HomePage() {
                 const created = t.transaction_date || t.created_at
                 if (!created) return false
                 const d = new Date(created)
-                // require same year, month AND day (billing day) for a match, plus same amount
                 return d.getFullYear() === year && d.getMonth() === monthIndex && d.getDate() === billDay && Number(t.amount) === Number(s.amount)
               })
-              if (matchingTx) {
-                continue
-              }
+              if (matchingTx) continue
 
               const txPayload: Partial<Transaction> = {
                 user_id: user.id,
@@ -151,12 +137,10 @@ export default function HomePage() {
                 console.error('Error creating subscription transaction for', s.id, createErr)
               } else {
                 try { sessionStorage.setItem(subMonthKey, '1') } catch (e) {}
-                // optimistically add to transactions shown on Home
                 setTransactions(prev => [createdTx as Transaction, ...prev])
               }
             }
           }
-          // done processing subscriptions
         } catch (err) {
           console.error('processDueCharges error', err)
         }
@@ -168,36 +152,15 @@ export default function HomePage() {
 
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!user) {
-      alert('Por favor, inicia sesión');
-      return;
-    }
-
-    if (!formData.description || !formData.amount) {
-      alert('Por favor, completa los campos requeridos');
-      return;
-    }
-
+    if (!user) { alert('Por favor, inicia sesión'); return; }
+    if (!formData.description || !formData.amount) { alert('Por favor, completa los campos requeridos'); return; }
     if ((formData.type === 'expense' || formData.type === 'income') && !formData.account_id) {
-      alert('Por favor, selecciona una cuenta');
-      return;
+      alert('Por favor, selecciona una cuenta'); return;
     }
 
-    let amount = parseFloat(formData.amount);
-    let currency = formData.currency;
-/*
-    // Si la moneda es diferente a la default, convertir automáticamente
-    if (currency !== defaultCurrency) {
-      const { data: rateData, error: rateError } = await getExchangeRate(currency, defaultCurrency);
-      if (rateError || !rateData?.rate) {
-        alert('No se encontró tasa de cambio para esta moneda');
-        return;
-      }
-      amount = amount * rateData.rate;
-      currency = defaultCurrency;
-    }
-*/
+    const amount = parseFloat(formData.amount);
+    const currency = formData.currency;
+
     const newTransaction: Partial<Transaction> = {
       user_id: user.id,
       type: formData.type,
@@ -205,11 +168,11 @@ export default function HomePage() {
       currency,
       transaction_date: new Date(formData.transaction_date).toISOString(),
       description: formData.description,
+      category_id: formData.category_id || null,
       ...(formData.type !== 'transfer' && { account_id: formData.account_id })
     };
 
     const { data, error: createError } = await createTransaction(newTransaction);
-
     if (createError) {
       console.error('Error detallado:', createError);
       alert('Error al crear la transacción: ' + (createError as any).message);
@@ -222,6 +185,7 @@ export default function HomePage() {
         type: 'expense',
         currency: currencies.length > 0 ? currencies[0].code : 'USD',
         account_id: accounts.length > 0 ? accounts[0].id : '',
+        category_id: '',
         transaction_date: new Date().toISOString().split('T')[0]
       });
     }
@@ -236,6 +200,7 @@ export default function HomePage() {
       type: editFormData.type,
       currency: editFormData.currency,
       transaction_date: new Date(editFormData.transaction_date).toISOString(),
+      category_id: editFormData.category_id || null,
       ...(editFormData.type !== 'transfer' && { account_id: editFormData.account_id })
     };
 
@@ -267,14 +232,8 @@ export default function HomePage() {
     return <div className="home-page"><p>Por favor, inicia sesión</p></div>;
   }
 
-  const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
-
+  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
   const totalBalance = totalIncome - totalExpenses;
 
   return (
@@ -290,7 +249,6 @@ export default function HomePage() {
           <button className="profile-btn" onClick={() => navigate('/personal-profile')}>
             <span className="material-symbols-outlined">person</span>
           </button>
-
           <button className="settings-btn" onClick={() => setShowSettings(true)}>
             <span className="material-symbols-outlined">settings</span>
           </button>
@@ -306,33 +264,23 @@ export default function HomePage() {
             </div>
             <div className="balance-amount">${totalBalance.toFixed(2)}</div>
           </div>
-
           <div className="stats-grid">
             <div className="stat-card income">
-              <div className="stat-header">
-                <span className="stat-label">Income</span>
-              </div>
+              <div className="stat-header"><span className="stat-label">Income</span></div>
               <div className="stat-amount">${totalIncome.toFixed(2)}</div>
             </div>
-
             <div className="stat-card expense">
-              <div className="stat-header">
-                <span className="stat-label">Expenses</span>
-              </div>
+              <div className="stat-header"><span className="stat-label">Expenses</span></div>
               <div className="stat-amount">-${totalExpenses.toFixed(2)}</div>
             </div>
           </div>
         </div>
 
         <section className="transactions-section">
-          <div className="section-header">
-            <h2>Transactions</h2>
-          </div>
-
+          <div className="section-header"><h2>Transactions</h2></div>
           {loading && <p>Cargando...</p>}
           {error && <p style={{ color: 'red' }}>{error}</p>}
           {!loading && transactions.length === 0 && <p>Sin transacciones</p>}
-
           <div className="transactions-list">
             {transactions.map((transaction) => (
               <div key={transaction.id} className="transaction-card">
@@ -357,7 +305,10 @@ export default function HomePage() {
                         type: transaction.type,
                         currency: transaction.currency,
                         account_id: (transaction as any).account_id || '',
-                        transaction_date: transaction.transaction_date ? new Date(transaction.transaction_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                        category_id: (transaction as any).category_id || '',
+                        transaction_date: transaction.transaction_date
+                          ? new Date(transaction.transaction_date).toISOString().split('T')[0]
+                          : new Date().toISOString().split('T')[0]
                       });
                       setShowEditModal(true);
                     }}
@@ -365,13 +316,9 @@ export default function HomePage() {
                   >
                     <span className="material-symbols-outlined">edit</span>
                   </button>
-
                   <button
                     className="action-btn delete"
-                    onClick={() => {
-                      setDeleteTargetId(transaction.id || null);
-                      setShowDeleteModal(true);
-                    }}
+                    onClick={() => { setDeleteTargetId(transaction.id || null); setShowDeleteModal(true); }}
                     aria-label="Eliminar"
                   >
                     <span className="material-symbols-outlined">delete</span>
@@ -387,6 +334,7 @@ export default function HomePage() {
         <span className="material-symbols-outlined">add</span>
       </button>
 
+      {/* MODAL CREAR */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -394,93 +342,67 @@ export default function HomePage() {
               <h2>Nueva Transacción</h2>
               <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
             </div>
-
             <form onSubmit={handleAddTransaction} className="modal-form">
               <div className="form-group">
                 <label>Descripción</label>
-                <input
-                  type="text"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Ej: Café, Compra..."
-                  required
-                />
+                <input type="text" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Ej: Café, Compra..." required />
               </div>
-
               <div className="form-group">
                 <label>Importe</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  placeholder="0.00"
-                  required
-                />
+                <input type="number" step="0.01" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} placeholder="0.00" required />
               </div>
-
               <div className="form-group">
                 <label>Tipo</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
-                >
+                <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer', category_id: '' })}>
                   <option value="expense">Gasto</option>
                   <option value="income">Ingreso</option>
                   <option value="transfer">Transferencia</option>
                 </select>
               </div>
-
               {(formData.type === 'expense' || formData.type === 'income') && (
-                <div className="form-group">
-                  <label>Cuenta</label>
-                  <select
-                    value={formData.account_id}
-                    onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
-                    required
-                  >
-                    <option value="">Selecciona una cuenta</option>
-                    {accounts.map((account) => (
-                      <option key={account.id} value={account.id}>
-                        {account.name || account.id}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <>
+                  <div className="form-group">
+                    <label>Cuenta</label>
+                    <select value={formData.account_id} onChange={(e) => setFormData({ ...formData, account_id: e.target.value })} required>
+                      <option value="">Selecciona una cuenta</option>
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>{account.name || account.id}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Categoría</label>
+                    <select value={formData.category_id} onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}>
+                      <option value="">Sin categoría</option>
+                      {categories
+                        .filter(c => c.type === formData.type)
+                        .map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                  </div>
+                </>
               )}
-
               <div className="form-group">
                 <label>Moneda</label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  required
-                >
+                <select value={formData.currency} onChange={(e) => setFormData({ ...formData, currency: e.target.value })} required>
                   <option value="">Selecciona una moneda</option>
                   {currencies.map((currency) => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.name} ({currency.code})
-                    </option>
+                    <option key={currency.code} value={currency.code}>{currency.name} ({currency.code})</option>
                   ))}
                 </select>
               </div>
-
               <div className="form-group">
                 <label>Fecha</label>
-                <input
-                  type="date"
-                  value={formData.transaction_date}
-                  onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })}
-                  required
-                />
+                <input type="date" value={formData.transaction_date} onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })} required />
               </div>
-
               <button type="submit" className="submit-btn">Crear</button>
             </form>
           </div>
         </div>
       )}
 
+      {/* MODAL EDITAR */}
       {showEditModal && (
         <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -488,93 +410,67 @@ export default function HomePage() {
               <h2>Editar Transacción</h2>
               <button className="modal-close" onClick={() => setShowEditModal(false)}>✕</button>
             </div>
-
             <form onSubmit={handleUpdateTransaction} className="modal-form">
               <div className="form-group">
                 <label>Descripción</label>
-                <input
-                  type="text"
-                  value={editFormData.description || ''}
-                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
-                  placeholder="Ej: Café, Compra..."
-                  required
-                />
+                <input type="text" value={editFormData.description || ''} onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })} placeholder="Ej: Café, Compra..." required />
               </div>
-
               <div className="form-group">
                 <label>Importe</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={editFormData.amount || ''}
-                  onChange={(e) => setEditFormData({ ...editFormData, amount: e.target.value })}
-                  placeholder="0.00"
-                  required
-                />
+                <input type="number" step="0.01" value={editFormData.amount || ''} onChange={(e) => setEditFormData({ ...editFormData, amount: e.target.value })} placeholder="0.00" required />
               </div>
-
               <div className="form-group">
                 <label>Tipo</label>
-                <select
-                  value={editFormData.type || 'expense'}
-                  onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
-                >
+                <select value={editFormData.type || 'expense'} onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer', category_id: '' })}>
                   <option value="expense">Gasto</option>
                   <option value="income">Ingreso</option>
                   <option value="transfer">Transferencia</option>
                 </select>
               </div>
-
               {(editFormData.type === 'expense' || editFormData.type === 'income') && (
-                <div className="form-group">
-                  <label>Cuenta</label>
-                  <select
-                    value={editFormData.account_id || ''}
-                    onChange={(e) => setEditFormData({ ...editFormData, account_id: e.target.value })}
-                    required
-                  >
-                    <option value="">Selecciona una cuenta</option>
-                    {accounts.map((account) => (
-                      <option key={account.id} value={account.id}>
-                        {account.name || account.id}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <>
+                  <div className="form-group">
+                    <label>Cuenta</label>
+                    <select value={editFormData.account_id || ''} onChange={(e) => setEditFormData({ ...editFormData, account_id: e.target.value })} required>
+                      <option value="">Selecciona una cuenta</option>
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>{account.name || account.id}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Categoría</label>
+                    <select value={editFormData.category_id || ''} onChange={(e) => setEditFormData({ ...editFormData, category_id: e.target.value })}>
+                      <option value="">Sin categoría</option>
+                      {categories
+                        .filter(c => c.type === editFormData.type)
+                        .map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
+                  </div>
+                </>
               )}
-
               <div className="form-group">
                 <label>Moneda</label>
-                <select
-                  value={editFormData.currency || ''}
-                  onChange={(e) => setEditFormData({ ...editFormData, currency: e.target.value })}
-                  required
-                >
+                <select value={editFormData.currency || ''} onChange={(e) => setEditFormData({ ...editFormData, currency: e.target.value })} required>
                   <option value="">Selecciona una moneda</option>
                   {currencies.map((currency) => (
-                    <option key={currency.code} value={currency.code}>
-                      {currency.name} ({currency.code})
-                    </option>
+                    <option key={currency.code} value={currency.code}>{currency.name} ({currency.code})</option>
                   ))}
                 </select>
               </div>
-
               <div className="form-group">
                 <label>Fecha</label>
-                <input
-                  type="date"
-                  value={editFormData.transaction_date || new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setEditFormData({ ...editFormData, transaction_date: e.target.value })}
-                  required
-                />
+                <input type="date" value={editFormData.transaction_date || new Date().toISOString().split('T')[0]} onChange={(e) => setEditFormData({ ...editFormData, transaction_date: e.target.value })} required />
               </div>
-
               <button type="submit" className="submit-btn">Guardar</button>
             </form>
           </div>
         </div>
       )}
 
+      {/* MODAL ELIMINAR */}
       {showDeleteModal && (
         <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -582,7 +478,6 @@ export default function HomePage() {
               <h2>Eliminar Transacción</h2>
               <button className="modal-close" onClick={() => setShowDeleteModal(false)}>✕</button>
             </div>
-
             <div className="modal-form">
               <p>¿Estás seguro? Haz clic en "Eliminar" para confirmar la eliminación.</p>
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
@@ -594,7 +489,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <SettingsSidebar 
+      <SettingsSidebar
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         userId={user?.id || ''}
