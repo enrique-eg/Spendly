@@ -8,6 +8,7 @@ import { getUserProfile } from '../../services/profilesService';
 import { getSubscriptions } from '../../services/subscriptionsService';
 import { convertFromEUR } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
+import WeeklyChart from '../../components/charts/WeeklyChart';
 import { formatDateWithoutTimezone } from '../../utils/dateFormatter';
 import type { Transaction } from '../../models/Transaction';
 import './home-page.css';
@@ -348,6 +349,13 @@ export default function HomePage() {
               <div className="stat-amount">-{currencySymbols[defaultCurrency] || defaultCurrency}{totalExpensesConverted.toFixed(2)}</div>
             </div>
           </div>
+        </div>
+
+        <div className="weekly-chart">
+          <WeeklyChart 
+            transactions={transactions} 
+            currencySymbol={currencySymbols[defaultCurrency] || defaultCurrency}
+          />
         </div>
 
         <section className="transactions-section">
