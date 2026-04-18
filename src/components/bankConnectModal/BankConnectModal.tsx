@@ -71,7 +71,7 @@ export default function BankConnectModal({ userId, onClose, onConnected }: Props
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [loadingText, setLoadingText] = useState("")
-  //const [importedAccount, setImportedAccount] = useState<any>(null)
+  const [ setImportedAccount] = useState<any>(null)
 
   async function handleConnect() {
     if (!username || !password || !selectedBank) return
