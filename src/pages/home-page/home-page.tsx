@@ -271,10 +271,11 @@ export default function HomePage() {
     return <div className="home-page"><p>Por favor, inicia sesión</p></div>;
   }
 
+
   const totalBalance = totalIncomeConverted - totalExpensesConverted;
   const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-  const totalBalance = totalIncome - totalExpenses;
+
 
   return (
     <div className="home-page">
