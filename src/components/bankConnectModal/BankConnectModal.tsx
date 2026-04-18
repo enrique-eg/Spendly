@@ -71,7 +71,6 @@ export default function BankConnectModal({ userId, onClose, onConnected }: Props
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [loadingText, setLoadingText] = useState("")
-  const [ setImportedAccount] = useState<any>(null)
 
   async function handleConnect() {
     if (!username || !password || !selectedBank) return
@@ -119,7 +118,6 @@ export default function BankConnectModal({ userId, onClose, onConnected }: Props
 
       await supabase.from("transactions").insert(txs)
 
-      setImportedAccount(accountData)
       onConnected(accountData)
       setStep("success")
     }, 3000)
