@@ -8,6 +8,20 @@ import { getCategories } from '../../services/categoriesService'
 import type { Budget } from '../../models/Budget'
 import './budgets.css'
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Food: '#854F0B',
+  Transport: '#185FA5',
+  Entertainment: '#993C1D',
+  Health: '#0F6E56',
+  Housing: '#534AB7',
+  Shopping: '#993556',
+  Bills: '#3B6D11',
+  Subscriptions: '#5F5E5A',
+  Travel: '#0C447C',
+  Education: '#633806',
+  Other: '#444441',
+}
+
 function BudgetsPageInner(){
   const { user } = useAuth()
   const [showSettings, setShowSettings] = useState(false)
@@ -15,6 +29,9 @@ function BudgetsPageInner(){
   const [categories, setCategories] = useState<any[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [loading, setLoading] = useState(true)
+  const [showAddCategory, setShowAddCategory] = useState(false)
+  const [selectedCategoryId, setSelectedCategoryId] = useState('')
+  const [newCategoryLimit, setNewCategoryLimit] = useState('')
 
   useEffect(() => {
     if (!user) return
@@ -140,7 +157,7 @@ function BudgetsPageInner(){
           <div className="logo-circle"><span className="material-symbols-outlined">pie_chart</span></div>
           <div>
             <h1>Budgets</h1>
-            <div className="header-sub">Monthly spending limits per account</div>
+            <div className="header-sub">Monthly spending limits</div>
           </div>
         </div>
         <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Open settings">
@@ -149,7 +166,7 @@ function BudgetsPageInner(){
       </header>
 
       <div className="budgets-page">
-        <main className="budgets-main">
+        <main className="budgets-main" style={{ paddingBottom: '6rem' }}>
           {loading && <p>Cargando...</p>}
 
           {/* CUENTAS */}
@@ -175,27 +192,106 @@ function BudgetsPageInner(){
           )}
 
           {/* CATEGORÍAS */}
-          {!loading && categories.length > 0 && (
+          {!loading && (
             <>
-              <p className="section-divider">By category</p>
+              <p className="section-divider">Categories</p>
+
               <div className="budgets-list">
-                {categories.map(cat => {
-                  const b = budgets.find(x => x.category_id === cat.id)
-                  return (
-                    <CategoryBudgetCard
-                      key={cat.id}
-                      category={cat}
-                      budget={b}
-                      getSpent={() => getSpentForCategory(cat.id)}
-                      onSave={(amt: number) => handleSaveCategoryLimit(cat.id, amt)}
-                      onRemove={() => b && handleRemove(b.id)}
-                    />
-                  )
-                })}
+                {budgets
+                  .filter(b => b.category_id)
+                  .map(b => {
+                    const cat = categories.find(c => c.id === b.category_id)
+                    if (!cat) return null
+                    return (
+                      <CategoryBudgetCard
+                        key={cat.id}
+                        category={cat}
+                        budget={b}
+                        getSpent={() => getSpentForCategory(cat.id)}
+                        onSave={(amt: number) => handleSaveCategoryLimit(cat.id, amt)}
+                        onRemove={() => handleRemove(b.id)}
+                      />
+                    )
+                  })}
+
+                {budgets.filter(b => b.category_id).length === 0 && (
+                  <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '20px 0' }}>
+                    No category budgets yet. Add one to start tracking.
+                  </p>
+                )}
               </div>
             </>
           )}
         </main>
+
+        {/* BOTÓN FIJO ENCIMA DEL FOOTER */}
+        {!loading && (
+          <button className="add-category-btn" onClick={() => setShowAddCategory(true)}>
+            + Add Category
+          </button>
+        )}
+
+        {/* MODAL */}
+        {showAddCategory && (
+          <div className="modal-overlay" onClick={() => setShowAddCategory(false)}>
+            <div className="add-category-modal" onClick={e => e.stopPropagation()}>
+              <h3>Add category budget</h3>
+              <p className="modal-sub-text">Select a category and set a monthly limit</p>
+
+              <div className="cat-list">
+                {categories
+                  .filter(c => !budgets.find(b => b.category_id === c.id))
+                  .map(cat => (
+                    <div
+                      key={cat.id}
+                      className={`cat-option ${selectedCategoryId === cat.id ? 'selected' : ''}`}
+                      onClick={() => setSelectedCategoryId(cat.id)}
+                    >
+                      <div
+                        className="budget-avatar"
+                        style={{ background: CATEGORY_COLORS[cat.name] || '#534AB7', width: 36, height: 36, fontSize: 13 }}
+                      >
+                        {cat.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span>{cat.name}</span>
+                    </div>
+                  ))}
+              </div>
+
+              {selectedCategoryId && (
+                <div className="cat-limit-row">
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Monthly limit"
+                    value={newCategoryLimit}
+                    onChange={e => setNewCategoryLimit(e.target.value)}
+                  />
+                  <button className="submit-btn" onClick={async () => {
+                    await handleSaveCategoryLimit(selectedCategoryId, parseFloat(newCategoryLimit))
+                    setShowAddCategory(false)
+                    setSelectedCategoryId('')
+                    setNewCategoryLimit('')
+                  }}>
+                    Save
+                  </button>
+                </div>
+              )}
+
+              <button
+                className="submit-btn danger"
+                style={{ marginTop: 8 }}
+                onClick={() => {
+                  setShowAddCategory(false)
+                  setSelectedCategoryId('')
+                  setNewCategoryLimit('')
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         <SettingsSidebar
           isOpen={showSettings}
@@ -268,20 +364,6 @@ function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove }: an
   const [limit, setLimit] = useState<string>(budget?.limit_amount ? String(budget.limit_amount) : '')
   const [spent, setSpent] = useState(0)
   const [, setLoading] = useState(true)
-
-  const CATEGORY_COLORS: Record<string, string> = {
-    Food: '#854F0B',
-    Transport: '#185FA5',
-    Entertainment: '#993C1D',
-    Health: '#0F6E56',
-    Housing: '#534AB7',
-    Shopping: '#993556',
-    Bills: '#3B6D11',
-    Subscriptions: '#5F5E5A',
-    Travel: '#0C447C',
-    Education: '#633806',
-    Other: '#444441',
-  }
 
   useEffect(() => {
     let mounted = true
