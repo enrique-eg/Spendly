@@ -1,4 +1,5 @@
 import supabase from './supabaseClient'
+import { convertToEUR } from './exchangeRatesService'
 import type { Transaction } from '../models/Transaction'
 
 export async function getTransactionsByUser(userId: string) {
@@ -43,9 +44,19 @@ export async function getTransactionsByAccountInRange(accountId: string, startDa
 
 export async function createTransaction(transaction: Partial<Transaction>) {
   try {
+    // Convert amount to EUR for storage
+    const amountConverted = transaction.currency && transaction.amount 
+      ? await convertToEUR(transaction.amount, transaction.currency)
+      : transaction.amount;
+
+    const transactionWithConversion = {
+      ...transaction,
+      amount_converted: amountConverted
+    };
+
     const { data, error } = await supabase
       .from('transactions')
-      .insert(transaction)
+      .insert(transactionWithConversion)
       .select()
       .single()
     return { data, error }
@@ -56,9 +67,19 @@ export async function createTransaction(transaction: Partial<Transaction>) {
 
 export async function updateTransaction(id: string, transaction: Partial<Transaction>) {
   try {
+    // Convert amount to EUR for storage
+    const amountConverted = transaction.currency && transaction.amount 
+      ? await convertToEUR(transaction.amount, transaction.currency)
+      : transaction.amount_converted;
+
+    const transactionWithConversion = {
+      ...transaction,
+      amount_converted: amountConverted
+    };
+
     const { data, error } = await supabase
       .from('transactions')
-      .update(transaction)
+      .update(transactionWithConversion)
       .eq('id', id)
       .select()
       .single()

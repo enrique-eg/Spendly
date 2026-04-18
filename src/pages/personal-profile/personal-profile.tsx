@@ -11,6 +11,7 @@ import Swal from "sweetalert2"
 import { useAuth } from "../../context/AuthContext"
 import supabase from "../../services/supabaseClient"
 import { useNavigate } from "react-router-dom"
+import { formatDateOnly } from "../../utils/dateFormatter"
 
 export default function Profile(){
 
@@ -70,7 +71,7 @@ export default function Profile(){
     && new Date(profile.premium_until) > new Date()
 
   const expiryDate = profile?.premium_until
-    ? new Date(profile.premium_until).toLocaleDateString()
+    ? formatDateOnly(profile.premium_until)
     : null
 
   async function handleCancelSubscription(){
