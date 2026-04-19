@@ -9,6 +9,7 @@ import { getSubscriptions } from '../../services/subscriptionsService';
 import { convertFromEUR } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import WeeklyChart from '../../components/charts/WeeklyChart';
+import MonthlyCategoryChart from '../../components/charts/MonthlyCategoryChart';
 import { formatDateWithoutTimezone } from '../../utils/dateFormatter';
 import { getCategoriesByType } from '../../constants/categories';
 import type { Transaction } from '../../models/Transaction';
@@ -29,6 +30,7 @@ export default function HomePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showMonthlyCategoryModal, setShowMonthlyCategoryModal] = useState(false);
   const [defaultCurrency, setDefaultCurrency] = useState('USD');
   const [totalExpensesConverted, setTotalExpensesConverted] = useState(0);
   const [totalIncomeConverted, setTotalIncomeConverted] = useState(0);
@@ -348,11 +350,21 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="weekly-chart">
-          <WeeklyChart 
-            transactions={transactions} 
-            currencySymbol={currencySymbols[defaultCurrency] || defaultCurrency}
-          />
+        <div className="charts-container">
+          <div className="weekly-chart">
+            <WeeklyChart 
+              transactions={transactions} 
+              currencySymbol={currencySymbols[defaultCurrency] || defaultCurrency}
+            />
+          </div>
+          <button 
+            className="monthly-analysis-btn"
+            onClick={() => setShowMonthlyCategoryModal(true)}
+            title="View monthly category analysis"
+          >
+            <span className="material-symbols-outlined">pie_chart</span>
+            <span>Monthly Analysis</span>
+          </button>
         </div>
 
         <section className="transactions-section">
@@ -656,6 +668,23 @@ export default function HomePage() {
                 <button className="submit-btn danger" onClick={async (e) => { e.preventDefault(); await handleConfirmDelete(); }}>Eliminar</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showMonthlyCategoryModal && (
+        <div className="monthly-category-modal-overlay" onClick={() => setShowMonthlyCategoryModal(false)}>
+          <div className="monthly-category-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Monthly Analysis</h2>
+              <button className="modal-close-btn" onClick={() => setShowMonthlyCategoryModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <MonthlyCategoryChart 
+              transactions={transactions}
+              currencySymbol={currencySymbols[defaultCurrency] || defaultCurrency}
+            />
           </div>
         </div>
       )}
