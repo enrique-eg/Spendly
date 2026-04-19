@@ -10,6 +10,7 @@ import { convertFromEUR } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import WeeklyChart from '../../components/charts/WeeklyChart';
 import { formatDateWithoutTimezone } from '../../utils/dateFormatter';
+import { getCategoriesByType } from '../../constants/categories';
 import type { Transaction } from '../../models/Transaction';
 import './home-page.css';
 
@@ -37,6 +38,7 @@ export default function HomePage() {
     type: 'expense' as 'income' | 'expense' | 'transfer',
     currency: 'USD',
     account_id: '',
+    category_id: '',
     transaction_date: new Date().toISOString().split('T')[0]
   });
 
@@ -232,7 +234,8 @@ export default function HomePage() {
       currency,
       transaction_date: new Date(formData.transaction_date).toISOString(),
       description: formData.description,
-      ...(formData.type !== 'transfer' && { account_id: formData.account_id })
+      ...(formData.type !== 'transfer' && { account_id: formData.account_id }),
+      ...(formData.category_id && { category_id: formData.category_id })
     };
 
     const { data, error: createError } = await createTransaction(newTransaction);
@@ -249,6 +252,7 @@ export default function HomePage() {
         type: 'expense',
         currency: currencies.length > 0 ? currencies[0].code : 'USD',
         account_id: accounts.length > 0 ? accounts[0].id : '',
+        category_id: '',
         transaction_date: new Date().toISOString().split('T')[0]
       });
     }
@@ -263,7 +267,8 @@ export default function HomePage() {
       type: editFormData.type,
       currency: editFormData.currency,
       transaction_date: new Date(editFormData.transaction_date).toISOString(),
-      ...(editFormData.type !== 'transfer' && { account_id: editFormData.account_id })
+      ...(editFormData.type !== 'transfer' && { account_id: editFormData.account_id }),
+      ...(editFormData.category_id && { category_id: editFormData.category_id })
     };
 
     const { data, error } = await updateTransaction(editFormData.id, updated);
@@ -383,6 +388,7 @@ export default function HomePage() {
                         type: transaction.type,
                         currency: transaction.currency,
                         account_id: (transaction as any).account_id || '',
+                        category_id: (transaction as any).category_id || '',
                         transaction_date: transaction.transaction_date ? new Date(transaction.transaction_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
                       });
                       setShowEditModal(true);
@@ -449,7 +455,7 @@ export default function HomePage() {
                 <label>Tipo</label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer', category_id: '' })}
                 >
                   <option value="expense">Gasto</option>
                   <option value="income">Ingreso</option>
@@ -458,8 +464,24 @@ export default function HomePage() {
               </div>
 
               {(formData.type === 'expense' || formData.type === 'income') && (
-                <div className="form-group">
-                  <label>Cuenta</label>
+                <>
+                  <div className="form-group">
+                    <label>Categoría</label>
+                    <select
+                      value={formData.category_id}
+                      onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                    >
+                      <option value="">Selecciona una categoría</option>
+                      {getCategoriesByType(formData.type).map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Cuenta</label>
                   <select
                     value={formData.account_id}
                     onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
@@ -473,6 +495,7 @@ export default function HomePage() {
                     ))}
                   </select>
                 </div>
+                </>
               )}
 
               <div className="form-group">
@@ -543,7 +566,7 @@ export default function HomePage() {
                 <label>Tipo</label>
                 <select
                   value={editFormData.type || 'expense'}
-                  onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
+                  onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer', category_id: '' })}
                 >
                   <option value="expense">Gasto</option>
                   <option value="income">Ingreso</option>
@@ -552,8 +575,24 @@ export default function HomePage() {
               </div>
 
               {(editFormData.type === 'expense' || editFormData.type === 'income') && (
-                <div className="form-group">
-                  <label>Cuenta</label>
+                <>
+                  <div className="form-group">
+                    <label>Categoría</label>
+                    <select
+                      value={editFormData.category_id || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, category_id: e.target.value })}
+                    >
+                      <option value="">Selecciona una categoría</option>
+                      {getCategoriesByType(editFormData.type || 'expense').map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Cuenta</label>
                   <select
                     value={editFormData.account_id || ''}
                     onChange={(e) => setEditFormData({ ...editFormData, account_id: e.target.value })}
@@ -567,6 +606,7 @@ export default function HomePage() {
                     ))}
                   </select>
                 </div>
+                </>
               )}
 
               <div className="form-group">
