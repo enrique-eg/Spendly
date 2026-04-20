@@ -49,7 +49,7 @@ export default function MonthlyCategoryChart({ transactions, currencySymbol }: M
     const EXPENSE_COLORS = ['#ef4444', '#f87171', '#fca5a5', '#fcb5b5', '#fccccb'];
     const INCOME_COLORS = ['#17cf54', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'];
 
-    const chartDataArray = [];
+    const chartDataArray: Array<{ name: string; value: number; color: string; type: string }> = [];
 
     // Add expenses
     Object.entries(expensesByCategory)
@@ -77,8 +77,6 @@ export default function MonthlyCategoryChart({ transactions, currencySymbol }: M
 
     return chartDataArray;
   }, [transactions]);
-
-  const totalAmount = chartData.reduce((sum, item) => sum + item.value, 0);
   const totalExpense = chartData
     .filter(item => item.type === 'expense')
     .reduce((sum, item) => sum + item.value, 0);

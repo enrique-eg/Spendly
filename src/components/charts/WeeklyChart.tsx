@@ -7,7 +7,7 @@ interface WeeklyChartProps {
   currencySymbol: string;
 }
 
-export default function WeeklyChart({ transactions, currencySymbol }: WeeklyChartProps) {
+export default function WeeklyChart({ transactions }: WeeklyChartProps) {
   const chartData = useMemo(() => {
     const today = new Date();
     const weekData: Record<string, { income: number; expense: number; day: string }> = {};
