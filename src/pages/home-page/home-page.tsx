@@ -6,13 +6,14 @@ import { getAccountsByUser } from '../../services/accountsService';
 import { getCurrencies } from '../../services/currenciesService';
 import { getUserProfile } from '../../services/profilesService';
 import { getSubscriptions } from '../../services/subscriptionsService';
+import { getCategories } from '../../services/categoriesService';
 import { convertFromEUR } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import WeeklyChart from '../../components/charts/WeeklyChart';
 import MonthlyCategoryChart from '../../components/charts/MonthlyCategoryChart';
 import { formatDateWithoutTimezone } from '../../utils/dateFormatter';
-import { getCategoriesByType } from '../../constants/categories';
 import type { Transaction } from '../../models/Transaction';
+import type { Category } from '../../models/Category';
 import './home-page.css';
 
 export default function HomePage() {
@@ -22,6 +23,7 @@ export default function HomePage() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [currencies, setCurrencies] = useState<any[]>([]);
   const [currencySymbols, setCurrencySymbols] = useState<Record<string, string>>({});
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -53,6 +55,7 @@ export default function HomePage() {
       const { data: accData, error: accError } = await getAccountsByUser(user.id);
       const { data: currData, error: currError } = await getCurrencies();
       const { data: profileData, error: profileError } = await getUserProfile(user.id);
+      const { data: catData, error: catError } = await getCategories();
       
       if (transError) {
         setError('Error al cargar las transacciones');
@@ -84,6 +87,10 @@ export default function HomePage() {
 
       if (!profileError && profileData?.default_currency) {
         setDefaultCurrency(profileData.default_currency);
+      }
+
+      if (!catError && catData) {
+        setCategories(catData);
       }
 
       setLoading(false);
@@ -196,6 +203,11 @@ export default function HomePage() {
 
     convertTotals();
   }, [transactions, defaultCurrency]);
+
+  const getCategoriesByType = (type: 'income' | 'expense' | 'transfer') => {
+    if (type === 'transfer') return [];
+    return categories.filter(cat => cat.type === type);
+  };
 
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -486,7 +498,7 @@ export default function HomePage() {
                       <option value="">Selecciona una categoría</option>
                       {getCategoriesByType(formData.type).map((category) => (
                         <option key={category.id} value={category.id}>
-                          {category.label}
+                          {category.name}
                         </option>
                       ))}
                     </select>
@@ -597,7 +609,7 @@ export default function HomePage() {
                       <option value="">Selecciona una categoría</option>
                       {getCategoriesByType(editFormData.type || 'expense').map((category) => (
                         <option key={category.id} value={category.id}>
-                          {category.label}
+                          {category.name}
                         </option>
                       ))}
                     </select>
