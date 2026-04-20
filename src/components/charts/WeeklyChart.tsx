@@ -66,7 +66,7 @@ export default function WeeklyChart({ transactions, currencySymbol }: WeeklyChar
               tick={{ fill: 'rgba(255,255,255,0.6)' }}
               width={40}
             />
-            <Tooltip cursor={false} />
+            <Tooltip content={() => null} cursor={false} />
             <Legend 
               wrapperStyle={{ fontSize: '0.75rem', paddingTop: '0.35rem', paddingBottom: '0.2rem' }}
               align="center"
