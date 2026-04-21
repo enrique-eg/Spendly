@@ -7,8 +7,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'service-worker.ts',
       devOptions: {
-        enabled: true
+        enabled: true,
+        type: 'module',
       },
       manifest: {
         name: 'Finova',

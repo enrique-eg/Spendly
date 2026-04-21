@@ -16,13 +16,18 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.1",
-    "sweetalert2": "^11.26.23"
+    "resend": "^6.12.2",
+    "sweetalert2": "^11.26.23",
+    "web-push": "^3.6.7",
+    "workbox-precaching": "^7.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@types/web-push": "^3.6.4",
+    "@vercel/node": "^5.7.12",
     "@vitejs/plugin-react": "^5.1.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.39.1",

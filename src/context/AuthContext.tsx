@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import supabase from "../services/supabaseClient"
+import { registerPushSubscription } from "../services/pushNotificationService"
 import type { User } from "@supabase/supabase-js"
 
 type AuthContextType = {
@@ -29,6 +30,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
   }, [])
+
+  useEffect(() => {
+    if (user) {
+      registerPushSubscription(user.id).catch(console.error)
+    }
+  }, [user])
 
   return (
     <AuthContext.Provider value={{ user }}>
