@@ -6,6 +6,8 @@ import { getSubscriptions, createSubscription, updateSubscription, deleteSubscri
 import { getTransactionsByAccount, createTransaction } from '../../services/transactionsService'
 import type { Transaction } from '../../models/Transaction'
 import { getAccountsByUser } from '../../services/accountsService'
+import { getUserProfile } from '../../services/profilesService'
+import { getCurrencySymbol } from '../../utils/currencySymbols'
 import './subscriptions.css'
 
 export default function SubscriptionsPage(){
@@ -25,6 +27,8 @@ export default function SubscriptionsPage(){
       setLoading(true)
       const { data } = await getSubscriptions()
       const { data: accData } = await getAccountsByUser(user.id)
+      const { data: profileData } = await getUserProfile(user.id)
+      if (profileData?.default_currency) setDefaultCurrency(profileData.default_currency)
       if (data) {
         setSubscriptions((data as Subscription[]).filter(s => s.user_id === user.id))
       } else {
@@ -227,25 +231,21 @@ export default function SubscriptionsPage(){
         </button>
       </header>
 
-      <header className="subs-header">
+      <div className="subscriptions-page">
         <div className="subs-stats-grid">
           <div className="balance-card monthly-card">
             <div className="card-header-top">
               <span className="balance-label">Subscriptions</span>
               <span className="material-symbols-outlined">payments</span>
             </div>
-            <div className="balance-amount">${totalMonthly.toFixed(2)}</div>
+            <div className="balance-amount">{getCurrencySymbol(defaultCurrency)}{totalMonthly.toFixed(2)}</div>
           </div>
-
           <div className="active-card stat-card">
             <div className="stat-label">ACTIVE SUBS</div>
             <div className="stat-value">{activeCount}</div>
-            <div className="stat-note">Stable</div>
+            <div className="stat-note">of {subscriptions.length} total</div>
           </div>
         </div>
-      </header>
-
-      <div className="subscriptions-page">
         <main className="subs-main">
         {loading && <p>Cargando...</p>}
         {!loading && subscriptions.length === 0 && <p className="empty">No hay suscripciones</p>}
@@ -261,7 +261,7 @@ export default function SubscriptionsPage(){
                     <div className="sub-name">{s.name}</div>
                     <div className="sub-meta">Account: {accounts.find(a => a.id === s.account_id)?.name || '-'} • {s.billing_day ? `${s.billing_day} ${getNextChargeMonth(s.billing_day)}` : '-'}</div>
                   </div>
-                  <div className="sub-amount">${s.amount.toFixed(2)}</div>
+                  <div className="sub-amount">{getCurrencySymbol(defaultCurrency)}{s.amount.toFixed(2)}</div>
                 </div>
               <div className="sub-actions">
                 <button className="action-btn edit" onClick={() => handleEdit(s)}><span className="material-symbols-outlined">edit</span></button>

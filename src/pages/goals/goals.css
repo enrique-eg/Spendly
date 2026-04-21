@@ -1,19 +1,173 @@
-/* Goals page styles */
-.goals-page { padding: 1rem; color: var(--text-primary); }
-.goals-header { display:block; margin-bottom:1rem }
-.balance-card { background: rgba(23, 207, 84, 0.1); border: 1px solid rgba(23,207,84,0.2); border-radius: 1.5rem; padding:1rem; width:100% }
-.card-header-top { display:flex; justify-content:space-between; }
-.balance-amount { font-size:1.75rem; font-weight:800 }
-.goals-main { margin-top:1rem }
-.goals-list { display:flex; flex-direction:column; gap:0.75rem }
-.goal-card { display:flex; align-items:center; gap:1rem; background:var(--card-bg); border:1px solid var(--border); padding:1rem; border-radius:1rem }
-.goal-avatar { width:2.5rem; height:2.5rem; border-radius:0.75rem; background: rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; color:var(--text-primary) }
-.goal-body { flex:1; display:flex; flex-direction:column; justify-content:center }
-.goal-top { display:flex; justify-content:space-between; align-items:center }
-.goal-name { font-weight:700 }
-.goal-target { font-weight:700; color:var(--primary) }
-.goal-meta { color:var(--text-secondary); font-size:0.9rem }
-.goal-actions { display:flex; gap:0.5rem }
-.fab.goals-fab { bottom:5.5rem }
+/* Goals page - mobile-first, mirrors home-page style */
 
-/* Reuse modal classes from home */
+.goals-page {
+  padding: 0.75rem 1rem 8rem;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Header summary card */
+.goals-header {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.goals-header .balance-card {
+  background: rgba(23, 207, 84, 0.1);
+  border: 1px solid rgba(23, 207, 84, 0.2);
+  border-radius: 1.5rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.goals-header .card-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goals-header .balance-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(23, 207, 84, 0.85);
+}
+
+.goals-header .balance-amount {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.small-note {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* Goals list */
+.goals-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.goal-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--card-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  padding: 0.75rem;
+  border-radius: 1rem;
+  color: var(--text-primary);
+}
+
+.goal-left {
+  flex-shrink: 0;
+  padding-top: 0.1rem;
+}
+
+.goal-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  background: rgba(23, 207, 84, 0.12);
+  border: 1px solid rgba(23, 207, 84, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary, #17cf54);
+}
+
+.goal-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.goal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.goal-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-target {
+  font-weight: 700;
+  color: var(--primary, #17cf54);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.goal-meta {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* Progress bar */
+.goal-progress-wrap {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.goal-progress-bar {
+  height: 6px;
+  background: var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.goal-progress-fill {
+  height: 100%;
+  background: var(--primary, #17cf54);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.goal-progress-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.goal-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.fab.goals-fab { bottom: 5.5rem; }
+
+.empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem 0;
+  font-size: 0.9rem;
+}
