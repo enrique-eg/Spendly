@@ -1,5 +1,15 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/:path*", "destination": "/" }
+  ],
+  "crons": [
+    {
+      "path": "/api/notify-subscriptions",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/notify-budgets",
+      "schedule": "0 10 * * *"
+    }
   ]
 }

@@ -4,6 +4,8 @@ import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import type { SavingGoal } from '../../models/SavingGoal'
 import { getGoals, createGoal, updateGoal, deleteGoal } from '../../services/goalsService'
 import { getAccountsByUser } from '../../services/accountsService'
+import { getUserProfile } from '../../services/profilesService'
+import { getCurrencySymbol } from '../../utils/currencySymbols'
 import './goals.css'
 
 export default function GoalsPage(){
@@ -11,6 +13,7 @@ export default function GoalsPage(){
   const [showSettings, setShowSettings] = useState(false)
   const [goals, setGoals] = useState<SavingGoal[]>([])
   const [accounts, setAccounts] = useState<any[]>([])
+  const [defaultCurrency, setDefaultCurrency] = useState('USD')
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -25,6 +28,8 @@ export default function GoalsPage(){
       setLoading(true)
       const { data } = await getGoals()
       const { data: accData } = await getAccountsByUser(user.id)
+      const { data: profileData } = await getUserProfile(user.id)
+      if (profileData?.default_currency) setDefaultCurrency(profileData.default_currency)
       if (data) {
         setGoals((data as SavingGoal[]).filter(g => g.user_id === user.id))
       } else {
@@ -171,7 +176,7 @@ export default function GoalsPage(){
             <div className="card-header-top">
               <span className="balance-label">Total Saved</span>
             </div>
-            <div className="balance-amount">${totalSaved.toFixed(2)}</div>
+            <div className="balance-amount">{getCurrencySymbol(defaultCurrency)}{totalSaved.toFixed(2)}</div>
             <div className="small-note">$0 added this month</div>
           </div>
         </header>
@@ -189,24 +194,24 @@ export default function GoalsPage(){
                 <div className="goal-body">
                   <div className="goal-top">
                     <div className="goal-name">{g.name}</div>
-                    <div className="goal-target">${(g.target_amount || 0).toFixed(2)}</div>
+                    <div className="goal-target">{getCurrencySymbol(defaultCurrency)}{(g.target_amount || 0).toFixed(2)}</div>
                   </div>
                   <div className="goal-meta">Target: {g.deadline ? formatDeadlineForDisplay(g.deadline) : '—'}</div>
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <div style={{ height: '10px', background: 'var(--border)', borderRadius: '6px', overflow: 'hidden' }}>
-                      {(() => {
-                        const actual = Number(g.actual_amount) || 0
-                        const target = Number(g.target_amount) || 0
-                        const pct = target > 0 ? Math.min(100, Math.max(0, (actual / target) * 100)) : (actual > 0 ? 100 : 0)
-                        return (
-                          <div style={{ width: pct + '%', height: '100%', background: 'var(--primary)' }} />
-                        )
-                      })()}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                      ${Number(g.actual_amount || 0).toFixed(2)} saved · {g.target_amount ? Math.round(((Number(g.actual_amount || 0) / Number(g.target_amount || 0)) * 100) || 0) : 0}%
-                    </div>
-                  </div>
+                  {(() => {
+                    const actual = Number(g.actual_amount) || 0
+                    const target = Number(g.target_amount) || 0
+                    const pct = target > 0 ? Math.min(100, Math.max(0, (actual / target) * 100)) : (actual > 0 ? 100 : 0)
+                    return (
+                      <div className="goal-progress-wrap">
+                        <div className="goal-progress-bar">
+                          <div className="goal-progress-fill" style={{ width: pct + '%' }} />
+                        </div>
+                        <div className="goal-progress-label">
+                          {getCurrencySymbol(defaultCurrency)}{actual.toFixed(2)} saved · {Math.round(pct)}%
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
                 <div className="goal-actions">
                   <button className="action-btn edit" onClick={() => handleEdit(g)}><span className="material-symbols-outlined">edit</span></button>
@@ -303,8 +308,8 @@ export default function GoalsPage(){
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
           userId={user?.id || ''}
-          defaultCurrency={''}
-          onDefaultCurrencyChange={() => {}}
+          defaultCurrency={defaultCurrency}
+          onDefaultCurrencyChange={setDefaultCurrency}
         />
       </div>
     </>

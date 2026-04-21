@@ -5,6 +5,8 @@ import { getAccountsByUser } from '../../services/accountsService'
 import { getBudgets, createBudget, updateBudget, deleteBudget } from '../../services/budgetsService'
 import { getTransactionsByAccountInRange, getTransactionsByUser } from '../../services/transactionsService'
 import { getCategories } from '../../services/categoriesService'
+import { getUserProfile } from '../../services/profilesService'
+import { getCurrencySymbol } from '../../utils/currencySymbols'
 import type { Budget } from '../../models/Budget'
 import './budgets.css'
 
@@ -25,6 +27,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 function BudgetsPageInner(){
   const { user } = useAuth()
   const [showSettings, setShowSettings] = useState(false)
+  const [defaultCurrency, setDefaultCurrency] = useState('USD')
   const [accounts, setAccounts] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
@@ -40,6 +43,8 @@ function BudgetsPageInner(){
       const { data: accData } = await getAccountsByUser(user.id)
       const { data: bData } = await getBudgets()
       const { data: catData } = await getCategories()
+      const { data: profileData } = await getUserProfile(user.id)
+      if (profileData?.default_currency) setDefaultCurrency(profileData.default_currency)
 
       setAccounts(accData || [])
       setCategories((catData || []).filter((c: any) => c.type === 'expense'))
@@ -184,6 +189,7 @@ function BudgetsPageInner(){
                       getSpent={() => getSpentForAccount(a.id)}
                       onSave={(amt: number) => handleSaveLimit(a.id, amt)}
                       onRemove={() => b && handleRemove(b.id)}
+                      currencySymbol={getCurrencySymbol(defaultCurrency)}
                     />
                   )
                 })}
@@ -210,6 +216,7 @@ function BudgetsPageInner(){
                         getSpent={() => getSpentForCategory(cat.id)}
                         onSave={(amt: number) => handleSaveCategoryLimit(cat.id, amt)}
                         onRemove={() => handleRemove(b.id)}
+                        currencySymbol={getCurrencySymbol(defaultCurrency)}
                       />
                     )
                   })}
@@ -297,15 +304,15 @@ function BudgetsPageInner(){
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
           userId={user?.id || ''}
-          defaultCurrency={''}
-          onDefaultCurrencyChange={() => {}}
+          defaultCurrency={defaultCurrency}
+          onDefaultCurrencyChange={setDefaultCurrency}
         />
       </div>
     </>
   )
 }
 
-function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove }: any) {
+function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove, currencySymbol }: any) {
   const [limit, setLimit] = useState<string>(budget?.limit_amount ? String(budget.limit_amount) : '')
   const [spent, setSpent] = useState(0)
   const [, setLoading] = useState(true)
@@ -339,9 +346,9 @@ function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove }: any)
           </div>
           <div className="budget-values-block">
             <div className="small-label">Spent this month</div>
-            <div className="budget-values">${spent.toFixed(2)}</div>
-            <div className="small-label">Monthly limit</div>
-            <div className="budget-values">${numericLimit.toFixed(2)}</div>
+          <div className="budget-values">{currencySymbol}{spent.toFixed(2)}</div>
+          <div className="small-label">Monthly limit</div>
+          <div className="budget-values">{currencySymbol}{numericLimit.toFixed(2)}</div>
           </div>
         </div>
         <div className="progress-wrap">
@@ -349,7 +356,7 @@ function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove }: any)
           <div className="progress-label">Progress: {pct}%</div>
         </div>
         <div className="budget-actions-row">
-          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="Monthly limit (USD)" />
+          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder={`Monthly limit (${currencySymbol})`} />
           <div className="actions-row">
             <button className="submit-btn" onClick={() => onSave(parseFloat(limit || '0'))}>Save limit</button>
             {budget && <button className="submit-btn danger" onClick={onRemove}>Remove limit</button>}
@@ -360,7 +367,7 @@ function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove }: any)
   )
 }
 
-function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove }: any) {
+function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove, currencySymbol }: any) {
   const [limit, setLimit] = useState<string>(budget?.limit_amount ? String(budget.limit_amount) : '')
   const [spent, setSpent] = useState(0)
   const [, setLoading] = useState(true)
@@ -397,9 +404,9 @@ function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove }: an
           </div>
           <div className="budget-values-block">
             <div className="small-label">Spent this month</div>
-            <div className="budget-values">${spent.toFixed(2)}</div>
+            <div className="budget-values">{currencySymbol}{spent.toFixed(2)}</div>
             <div className="small-label">Monthly limit</div>
-            <div className="budget-values">${numericLimit.toFixed(2)}</div>
+            <div className="budget-values">{currencySymbol}{numericLimit.toFixed(2)}</div>
           </div>
         </div>
         <div className="progress-wrap">
@@ -407,7 +414,7 @@ function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove }: an
           <div className="progress-label">Progress: {pct}%</div>
         </div>
         <div className="budget-actions-row">
-          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder="Monthly limit (USD)" />
+          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder={`Monthly limit (${currencySymbol})`} />
           <div className="actions-row">
             <button className="submit-btn" onClick={() => onSave(parseFloat(limit || '0'))}>Save limit</button>
             {budget && <button className="submit-btn danger" onClick={onRemove}>Remove limit</button>}
