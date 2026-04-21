@@ -6,13 +6,14 @@ import { getAccountsByUser } from '../../services/accountsService';
 import { getCurrencies } from '../../services/currenciesService';
 import { getUserProfile } from '../../services/profilesService';
 import { getSubscriptions } from '../../services/subscriptionsService';
-import { convertFromEUR } from '../../services/exchangeRatesService';
 import { getCategories } from '../../services/categoriesService';
-//import { getExchangeRate } from '../../services/exchangeRatesService';
+import { convertFromEUR } from '../../services/exchangeRatesService';
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar';
 import WeeklyChart from '../../components/charts/WeeklyChart';
+import MonthlyCategoryChart from '../../components/charts/MonthlyCategoryChart';
 import { formatDateWithoutTimezone } from '../../utils/dateFormatter';
 import type { Transaction } from '../../models/Transaction';
+import type { Category } from '../../models/Category';
 import './home-page.css';
 
 export default function HomePage() {
@@ -22,7 +23,7 @@ export default function HomePage() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [currencies, setCurrencies] = useState<any[]>([]);
   const [currencySymbols, setCurrencySymbols] = useState<Record<string, string>>({});
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -31,6 +32,7 @@ export default function HomePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showMonthlyCategoryModal, setShowMonthlyCategoryModal] = useState(false);
   const [defaultCurrency, setDefaultCurrency] = useState('USD');
   const [totalExpensesConverted, setTotalExpensesConverted] = useState(0);
   const [totalIncomeConverted, setTotalIncomeConverted] = useState(0);
@@ -53,9 +55,13 @@ export default function HomePage() {
       const { data: accData, error: accError } = await getAccountsByUser(user.id);
       const { data: currData, error: currError } = await getCurrencies();
       const { data: profileData, error: profileError } = await getUserProfile(user.id);
-      const { data: catData } = await getCategories();
-
-      setCategories(catData || []);
+      const { data: catData, error: catError } = await getCategories();
+      
+      if (transError) {
+        setError('Error al cargar las transacciones');
+      } else {
+        setTransactions(transData || []);
+      }
 
       if (!accError && accData) {
         setAccounts(accData);
@@ -93,6 +99,10 @@ export default function HomePage() {
 
       if (!profileError && profileData?.default_currency) {
         setDefaultCurrency(profileData.default_currency);
+      }
+
+      if (!catError && catData) {
+        setCategories(catData);
       }
 
       setLoading(false);
@@ -189,6 +199,11 @@ export default function HomePage() {
     convertTotals();
   }, [transactions, defaultCurrency]);
 
+  const getCategoriesByType = (type: 'income' | 'expense' | 'transfer') => {
+    if (type === 'transfer') return [];
+    return categories.filter(cat => cat.type === type);
+  };
+
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { alert('Por favor, inicia sesión'); return; }
@@ -207,7 +222,6 @@ export default function HomePage() {
       currency,
       transaction_date: new Date(formData.transaction_date).toISOString(),
       description: formData.description,
-      category_id: formData.category_id || null,
       ...(formData.type !== 'transfer' && { account_id: formData.account_id })
     };
 
@@ -239,7 +253,6 @@ export default function HomePage() {
       type: editFormData.type,
       currency: editFormData.currency,
       transaction_date: new Date(editFormData.transaction_date).toISOString(),
-      category_id: editFormData.category_id || null,
       ...(editFormData.type !== 'transfer' && { account_id: editFormData.account_id })
     };
 
@@ -273,9 +286,6 @@ export default function HomePage() {
 
 
   const totalBalance = totalIncomeConverted - totalExpensesConverted;
-  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-
 
   return (
     <div className="home-page">
@@ -311,25 +321,30 @@ export default function HomePage() {
                 <span className="stat-label">Income</span>
               </div>
               <div className="stat-amount">{currencySymbols[defaultCurrency] || defaultCurrency}{totalIncomeConverted.toFixed(2)}</div>
-              <div className="stat-header"><span className="stat-label">Income</span></div>
-              <div className="stat-amount">${totalIncome.toFixed(2)}</div>
             </div>
             <div className="stat-card expense">
               <div className="stat-header">
                 <span className="stat-label">Expenses</span>
               </div>
               <div className="stat-amount">-{currencySymbols[defaultCurrency] || defaultCurrency}{totalExpensesConverted.toFixed(2)}</div>
-              <div className="stat-header"><span className="stat-label">Expenses</span></div>
-              <div className="stat-amount">-${totalExpenses.toFixed(2)}</div>
             </div>
           </div>
         </div>
 
-        <div className="weekly-chart">
-          <WeeklyChart 
-            transactions={transactions} 
-            currencySymbol={currencySymbols[defaultCurrency] || defaultCurrency}
-          />
+        <div className="charts-container">
+          <div className="weekly-chart">
+            <WeeklyChart 
+              transactions={transactions}
+            />
+          </div>
+          <button 
+            className="monthly-analysis-btn"
+            onClick={() => setShowMonthlyCategoryModal(true)}
+            title="View monthly category analysis"
+          >
+            <span className="material-symbols-outlined">pie_chart</span>
+            <span>Monthly Analysis</span>
+          </button>
         </div>
 
         <section className="transactions-section">
@@ -361,10 +376,7 @@ export default function HomePage() {
                         type: transaction.type,
                         currency: transaction.currency,
                         account_id: (transaction as any).account_id || '',
-                        category_id: (transaction as any).category_id || '',
-                        transaction_date: transaction.transaction_date
-                          ? new Date(transaction.transaction_date).toISOString().split('T')[0]
-                          : new Date().toISOString().split('T')[0]
+                        transaction_date: transaction.transaction_date ? new Date(transaction.transaction_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
                       });
                       setShowEditModal(true);
                     }}
@@ -409,7 +421,10 @@ export default function HomePage() {
               </div>
               <div className="form-group">
                 <label>Tipo</label>
-                <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer', category_id: '' })}>
+                <select
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
+                >
                   <option value="expense">Gasto</option>
                   <option value="income">Ingreso</option>
                   <option value="transfer">Transferencia</option>
@@ -418,23 +433,33 @@ export default function HomePage() {
               {(formData.type === 'expense' || formData.type === 'income') && (
                 <>
                   <div className="form-group">
-                    <label>Cuenta</label>
-                    <select value={formData.account_id} onChange={(e) => setFormData({ ...formData, account_id: e.target.value })} required>
-                      <option value="">Selecciona una cuenta</option>
-                      {accounts.map((account) => (
-                        <option key={account.id} value={account.id}>{account.name || account.id}</option>
+                    <label>Categoría</label>
+                    <select
+                      value={formData.category_id}
+                      onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                    >
+                      <option value="">Selecciona una categoría</option>
+                      {getCategoriesByType(formData.type).map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
                       ))}
                     </select>
                   </div>
+
                   <div className="form-group">
-                    <label>Categoría</label>
-                    <select value={formData.category_id} onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}>
-                      <option value="">Sin categoría</option>
-                      {categories
-                        .filter(c => c.type === formData.type)
-                        .map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
+                    <label>Cuenta</label>
+                    <select
+                      value={formData.account_id}
+                      onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
+                      required
+                    >
+                      <option value="">Selecciona una cuenta</option>
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name || account.id}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </>
@@ -477,7 +502,10 @@ export default function HomePage() {
               </div>
               <div className="form-group">
                 <label>Tipo</label>
-                <select value={editFormData.type || 'expense'} onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer', category_id: '' })}>
+                <select
+                  value={editFormData.type || 'expense'}
+                  onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
+                >
                   <option value="expense">Gasto</option>
                   <option value="income">Ingreso</option>
                   <option value="transfer">Transferencia</option>
@@ -486,23 +514,33 @@ export default function HomePage() {
               {(editFormData.type === 'expense' || editFormData.type === 'income') && (
                 <>
                   <div className="form-group">
-                    <label>Cuenta</label>
-                    <select value={editFormData.account_id || ''} onChange={(e) => setEditFormData({ ...editFormData, account_id: e.target.value })} required>
-                      <option value="">Selecciona una cuenta</option>
-                      {accounts.map((account) => (
-                        <option key={account.id} value={account.id}>{account.name || account.id}</option>
+                    <label>Categoría</label>
+                    <select
+                      value={editFormData.category_id || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, category_id: e.target.value })}
+                    >
+                      <option value="">Selecciona una categoría</option>
+                      {getCategoriesByType(editFormData.type || 'expense').map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
                       ))}
                     </select>
                   </div>
+
                   <div className="form-group">
-                    <label>Categoría</label>
-                    <select value={editFormData.category_id || ''} onChange={(e) => setEditFormData({ ...editFormData, category_id: e.target.value })}>
-                      <option value="">Sin categoría</option>
-                      {categories
-                        .filter(c => c.type === editFormData.type)
-                        .map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
+                    <label>Cuenta</label>
+                    <select
+                      value={editFormData.account_id || ''}
+                      onChange={(e) => setEditFormData({ ...editFormData, account_id: e.target.value })}
+                      required
+                    >
+                      <option value="">Selecciona una cuenta</option>
+                      {accounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name || account.id}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </>
@@ -541,6 +579,23 @@ export default function HomePage() {
                 <button className="submit-btn danger" onClick={async (e) => { e.preventDefault(); await handleConfirmDelete(); }}>Eliminar</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showMonthlyCategoryModal && (
+        <div className="monthly-category-modal-overlay" onClick={() => setShowMonthlyCategoryModal(false)}>
+          <div className="monthly-category-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Monthly Analysis</h2>
+              <button className="modal-close-btn" onClick={() => setShowMonthlyCategoryModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <MonthlyCategoryChart 
+              transactions={transactions}
+              currencySymbol={currencySymbols[defaultCurrency] || defaultCurrency}
+            />
           </div>
         </div>
       )}
