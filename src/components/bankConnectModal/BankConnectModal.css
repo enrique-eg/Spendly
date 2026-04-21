@@ -1,0 +1,160 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-sheet {
+  background: #0c3b2e;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 12px 20px 40px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-handle {
+  width: 32px;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 0 auto 12px;
+}
+
+.step-label { font-size: 11px; color: rgba(255,255,255,0.35); }
+
+.modal-sheet h3 { font-size: 17px; font-weight: 500; color: #fff; margin: 0; }
+
+.modal-sub { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; }
+
+.bank-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 0.5px solid rgba(255,255,255,0.08);
+  background: #132d1e;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.bank-option:hover { border-color: rgba(34,197,94,0.4); }
+
+.bank-logo-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* cuando tengas logos: */
+.bank-logo-dot img { width: 100%; height: 100%; object-fit: contain; border-radius: 10px; }
+
+.bank-option-name { font-size: 14px; color: #fff; font-weight: 500; margin: 0; }
+.modal-chevron { margin-left: auto; color: rgba(255,255,255,0.3); font-size: 18px; }
+
+.modal-bank-header { display: flex; align-items: center; gap: 10px; }
+
+.inp-label { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+.modal-inp {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 9px;
+  border: 0.5px solid rgba(255,255,255,0.12);
+  background: #1a3a25;
+  color: #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.modal-inp::placeholder { color: rgba(255,255,255,0.25); }
+.modal-inp:focus { outline: none; border-color: #22c55e; }
+
+.modal-notice {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.modal-btn-green {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  background: #22c55e;
+  color: #0d2818;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.modal-btn-ghost {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: 0.5px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.modal-center { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px 0; }
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.08);
+  border-top-color: #22c55e;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.success-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(34,197,94,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-text { font-size: 15px; font-weight: 500; color: #fff; margin: 0; }
+
+.account-card-row { display: flex; align-items: center; gap: 12px; }
+.account-info { display: flex; flex-direction: column; gap: 2px; }
+.account-iban { font-size: 13px; font-weight: 500; color: #fff; }
+.account-owner { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+.add-account-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: 0.5px dashed rgba(34,197,94,0.35);
+  background: transparent;
+  color: #22c55e;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background .15s;
+}
+.add-account-btn:hover { background: rgba(34,197,94,0.06); }
