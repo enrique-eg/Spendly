@@ -104,7 +104,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (user.email) {
         const appUrl = process.env.APP_URL ?? 'https://your-spendly-app.vercel.app'
         await resend.emails.send({
-          from: 'Spendly <notifications@resend.dev>',
+          from: "Spendly <notifications@spendly.example.com>",
           to: user.email,
           subject: `Reminder: ${sub.name as string} renews tomorrow`,
           html: `
@@ -156,7 +156,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   </table>
 </body>
 </html>`,
-        })
+        });
       }
     }),
   )
