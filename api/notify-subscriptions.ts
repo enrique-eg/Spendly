@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import webPush from 'web-push'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
 // ---------------------------------------------------------------------------
 // Clients — initialised once per cold start
@@ -13,7 +13,16 @@ webPush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!,
 )
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Brevo SMTP transporter
+const transporter = nodemailer.createTransport({
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_SMTP_USER!,
+    pass: process.env.BREVO_SMTP_KEY!,
+  },
+})
 
 // Service-role key bypasses RLS so we can read all users' data
 const supabase = createClient(
@@ -103,8 +112,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // -----------------------------------------------------------------------
       if (user.email) {
         const appUrl = process.env.APP_URL ?? 'https://your-spendly-app.vercel.app'
-        await resend.emails.send({
-          from: "Spendly <notifications@spendly.example.com>",
+        await transporter.sendMail({
+          from: `"Spendly" <${process.env.BREVO_SMTP_USER!}>`,
           to: user.email,
           subject: `Reminder: ${sub.name as string} renews tomorrow`,
           html: `
