@@ -494,3 +494,40 @@
   width: 100%;
   height: 180px;
 }
+
+/* Charts Container */
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  position: relative;
+}
+
+.monthly-analysis-btn {
+  background: linear-gradient(135deg, rgba(23, 207, 84, 0.1) 0%, rgba(23, 207, 84, 0.05) 100%);
+  border: 1px solid rgba(23, 207, 84, 0.3);
+  border-radius: 1rem;
+  padding: 0.8rem 1.2rem;
+  margin: 0 1rem;
+  color: rgba(23, 207, 84, 0.9);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.monthly-analysis-btn:hover {
+  background: linear-gradient(135deg, rgba(23, 207, 84, 0.15) 0%, rgba(23, 207, 84, 0.1) 100%);
+  border-color: rgba(23, 207, 84, 0.5);
+  color: rgba(23, 207, 84, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(23, 207, 84, 0.1);
+}
+
+.monthly-analysis-btn .material-symbols-outlined {
+  font-size: 1.2rem;
+}
