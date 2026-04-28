@@ -226,7 +226,7 @@ export default function SubscriptionsPage(){
           </div>
           <h1>Spendly</h1>
         </div>
-        <button className="settings-btn" onClick={() => setShowSettings(true)}>
+        <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
           <span className="material-symbols-outlined">settings</span>
         </button>
       </header>
@@ -264,22 +264,22 @@ export default function SubscriptionsPage(){
                   <div className="sub-amount">{getCurrencySymbol(defaultCurrency)}{s.amount.toFixed(2)}</div>
                 </div>
               <div className="sub-actions">
-                <button className="action-btn edit" onClick={() => handleEdit(s)}><span className="material-symbols-outlined">edit</span></button>
-                <button className="action-btn delete" onClick={() => handleDelete(s.id)}><span className="material-symbols-outlined">delete</span></button>
+                <button className="action-btn edit" onClick={() => handleEdit(s)} aria-label="Editar"><span className="material-symbols-outlined">edit</span></button>
+                <button className="action-btn delete" onClick={() => handleDelete(s.id)} aria-label="Eliminar"><span className="material-symbols-outlined">delete</span></button>
               </div>
             </div>
           ))}
         </div>
       </main>
 
-      <button className="fab subs-fab" onClick={handleOpenCreate}><span className="material-symbols-outlined">add</span></button>
+      <button className="fab subs-fab" onClick={handleOpenCreate} aria-label="Nueva suscripción"><span className="material-symbols-outlined">add</span></button>
 
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{editingId ? 'Editar Suscripción' : 'Nueva Suscripción'}</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+              <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Cerrar">✕</button>
             </div>
 
             <form className="modal-form" onSubmit={handleSubmit}>

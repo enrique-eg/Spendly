@@ -53,7 +53,7 @@ export default function SettingsSidebar({ isOpen, onClose, userId, defaultCurren
       <div className={`settings-sidebar ${isOpen ? 'open' : ''}`}>
         <div className="settings-header">
           <h2>Configuración</h2>
-          <button className="settings-close" onClick={onClose}>✕</button>
+          <button className="settings-close" onClick={onClose} aria-label="Cerrar">✕</button>
         </div>
 
         <div className="settings-content">

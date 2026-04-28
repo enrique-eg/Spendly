@@ -287,10 +287,10 @@ export default function HomePage() {
           <h1>Spendly</h1>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <button className="profile-btn" onClick={() => navigate('/personal-profile')}>
+          <button className="profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
             <span className="material-symbols-outlined">person</span>
           </button>
-          <button className="settings-btn" onClick={() => setShowSettings(true)}>
+          <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
             <span className="material-symbols-outlined">settings</span>
           </button>
         </div>
@@ -386,7 +386,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <button className="fab" onClick={() => setShowModal(true)}>
+      <button className="fab" onClick={() => setShowModal(true)} aria-label="Agregar transacción">
         <span className="material-symbols-outlined">add</span>
       </button>
 
@@ -396,7 +396,7 @@ export default function HomePage() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Nueva Transacción</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+              <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Cerrar">✕</button>
             </div>
             <form onSubmit={handleAddTransaction} className="modal-form">
               <div className="form-group">
@@ -464,7 +464,7 @@ export default function HomePage() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Editar Transacción</h2>
-              <button className="modal-close" onClick={() => setShowEditModal(false)}>✕</button>
+              <button className="modal-close" onClick={() => setShowEditModal(false)} aria-label="Cerrar">✕</button>
             </div>
             <form onSubmit={handleUpdateTransaction} className="modal-form">
               <div className="form-group">

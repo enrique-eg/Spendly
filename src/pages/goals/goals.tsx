@@ -165,7 +165,7 @@ export default function GoalsPage(){
           </div>
           <h1>Saving Goals</h1>
         </div>
-        <button className="settings-btn" onClick={() => setShowSettings(true)}>
+        <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
           <span className="material-symbols-outlined">settings</span>
         </button>
       </header>
@@ -214,9 +214,9 @@ export default function GoalsPage(){
                   })()}
                 </div>
                 <div className="goal-actions">
-                  <button className="action-btn edit" onClick={() => handleEdit(g)}><span className="material-symbols-outlined">edit</span></button>
-                  <button className="action-btn" onClick={() => { setAdjustingGoal(g); setAdjustAmount(''); setShowAdjustModal(true) }} title="Adjust saved amount"><span className="material-symbols-outlined">add</span></button>
-                  <button className="action-btn delete" onClick={() => handleDelete(g.id)}><span className="material-symbols-outlined">delete</span></button>
+                  <button className="action-btn edit" onClick={() => handleEdit(g)} aria-label="Editar"><span className="material-symbols-outlined">edit</span></button>
+                  <button className="action-btn" onClick={() => { setAdjustingGoal(g); setAdjustAmount(''); setShowAdjustModal(true) }} aria-label="Ajustar monto guardado"><span className="material-symbols-outlined">add</span></button>
+                  <button className="action-btn delete" onClick={() => handleDelete(g.id)} aria-label="Eliminar"><span className="material-symbols-outlined">delete</span></button>
                 </div>
               </div>
             ))}
@@ -224,14 +224,14 @@ export default function GoalsPage(){
 
         </main>
 
-        <button className="fab goals-fab" onClick={handleOpenCreate}><span className="material-symbols-outlined">add</span></button>
+        <button className="fab goals-fab" onClick={handleOpenCreate} aria-label="Nueva meta"><span className="material-symbols-outlined">add</span></button>
 
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h2>{editingId ? 'Edit Goal' : 'New Goal'}</h2>
-                <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+                <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Cerrar">✕</button>
               </div>
 
               <form className="modal-form" onSubmit={handleSubmit}>
@@ -272,7 +272,7 @@ export default function GoalsPage(){
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h2>Adjust Saved Amount</h2>
-                <button className="modal-close" onClick={() => setShowAdjustModal(false)}>✕</button>
+                <button className="modal-close" onClick={() => setShowAdjustModal(false)} aria-label="Cerrar">✕</button>
               </div>
 
               <form className="modal-form" onSubmit={async (e) => {
