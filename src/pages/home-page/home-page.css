@@ -69,12 +69,20 @@
   color: var(--text-secondary);
   font-size: 1.5rem;
   padding: 0.5rem;
+  padding-left: 10.5px;
   border-radius: 50%;
   transition: color 0.2s;
 }
-
 .settings-btn:hover {
   color: var(--text-primary);
+}
+.settings-btn::after {
+  content: "settings";
+  font-size: 0.925rem;
+  opacity: 1;
+  position: absolute;
+  top: 64%;
+  right: 0.4%;
 }
 
 .profile-btn {
@@ -83,7 +91,7 @@
   cursor: pointer;
   color: var(--text-secondary);
   font-size: 1.2rem;
-  padding: 0.25rem;
+  padding: 0.5rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -94,6 +102,14 @@
   color: var(--text-primary);
 }
 
+.profile-btn::after {
+  content: "profile";
+  font-size: 0.925rem;
+  opacity: 1;
+  position: absolute;
+  top: 64%;
+  right: 3.4%;
+}
 .home-main {
   flex: 1;
   overflow-y: auto;

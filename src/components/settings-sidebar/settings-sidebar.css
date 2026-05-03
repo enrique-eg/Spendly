@@ -53,6 +53,14 @@
 .settings-close:hover {
   color: var(--text-primary);
 }
+.settings-close::after {
+  content: "close";
+  font-size: 0.925rem;
+  opacity: 1;
+  position: absolute;
+  top: 5.9%;
+  right: 5%;
+}
 
 .settings-content {
   padding: 1.5rem;

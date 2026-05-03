@@ -78,11 +78,19 @@ body.dark .spendly-header {
     border-radius: 0.5rem;
 }
 
+
 .header-back-btn:hover,
 .header-settings-btn:hover {
     color: #ffffff;
 }
-
+.header-settings-btn::after {
+    content: "settings";
+    font-size: 0.925rem;
+    opacity: 1;
+    position: absolute;
+    top: 70%;
+    right: 0.1%;
+}
 
 
 .header-title {
