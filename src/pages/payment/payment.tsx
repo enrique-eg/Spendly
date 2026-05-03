@@ -185,8 +185,8 @@ export default function Payment(){
             </div>
 
             <div className="field">
-              <label>Name on card</label>
-              <input
+              <label htmlFor="cardName">Name on card</label>
+              <input id="cardName"
                 placeholder="Enter cardholder's name"
                 value={name}
                 onChange={e => setName(e.target.value)}
@@ -194,8 +194,8 @@ export default function Payment(){
             </div>
 
             <div className="field">
-              <label>Card number</label>
-              <input
+              <label htmlFor="cardNumber">Card number</label>
+              <input id="cardNumber"
                 placeholder="XXXX XXXX XXXX XXXX"
                 value={card}
                 onChange={e => setCard(formatCard(e.target.value))}
@@ -214,8 +214,8 @@ export default function Payment(){
                 />
               </div>
               <div className="field">
-                <label>Expiration date</label>
-                <input
+                <label htmlFor="cvv">CVV</label>
+                <input id="cvv" 
                   placeholder="MM/YYYY"
                   value={expiry}
                   onChange={e => setExpiry(formatExpiry(e.target.value))}

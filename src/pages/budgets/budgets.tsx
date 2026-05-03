@@ -267,7 +267,10 @@ function BudgetsPageInner(){
 
               {selectedCategoryId && (
                 <div className="cat-limit-row">
+                  <label htmlFor="newCategoryLimit">Monthly limit: </label>
+
                   <input
+                    id="newCategoryLimit"
                     type="number"
                     step="0.01"
                     placeholder="Monthly limit"
@@ -414,11 +417,38 @@ function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove, curr
           <div className="progress-label">Progress: {pct}%</div>
         </div>
         <div className="budget-actions-row">
-          <input type="number" step="0.01" value={limit} onChange={(e) => setLimit(e.target.value)} placeholder={`Monthly limit (${currencySymbol})`} />
-          <div className="actions-row">
-            <button className="submit-btn" onClick={() => onSave(parseFloat(limit || '0'))}>Save limit</button>
-            {budget && <button className="submit-btn danger" onClick={onRemove}>Remove limit</button>}
+
+          <div className="input-group">
+            <label htmlFor="monthlyLimit">Monthly limit</label>
+
+            <input
+              id="monthlyLimit"
+              type="number"
+              step="0.01"
+              value={limit}
+              onChange={(e) => setLimit(e.target.value)}
+              placeholder={`Monthly limit (${currencySymbol})`}
+            />
           </div>
+
+          <div className="actions-row">
+            <button
+              className="submit-btn"
+              onClick={() => onSave(parseFloat(limit || '0'))}
+            >
+              Save limit
+            </button>
+
+            {budget && (
+              <button
+                className="submit-btn danger"
+                onClick={onRemove}
+              >
+                Remove limit
+              </button>
+            )}
+          </div>
+
         </div>
       </div>
     </div>

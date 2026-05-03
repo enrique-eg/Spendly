@@ -20,7 +20,6 @@ export default function SignUp(){
 
   const [showPassword,setShowPassword] = useState(false)
 
-
   const passwordChecks = {
     length: password.length >= 8,
     uppercase: /[A-Z]/.test(password),
@@ -69,10 +68,11 @@ export default function SignUp(){
 
         {/* FULL NAME */}
         <div className="input-group">
-          <label>Full Name</label>
+          <label htmlFor="fullName">Full Name</label>
           <div className="input-box">
             <img src={userIcon} className="input-icon" />
             <input
+              id="fullName"
               type="text"
               placeholder="John Doe"
               value={name}
@@ -83,10 +83,11 @@ export default function SignUp(){
 
         {/* EMAIL */}
         <div className="input-group">
-          <label>Email Address</label>
+          <label htmlFor="email">Email Address</label>
           <div className="input-box">
             <img src={mailIcon} className="input-icon" />
             <input
+              id="email"
               type="email"
               placeholder="name@example.com"
               value={email}
@@ -97,10 +98,11 @@ export default function SignUp(){
 
         {/* PASSWORD */}
         <div className="input-group">
-          <label>Password</label>
+          <label htmlFor="password">Password</label>
           <div className="input-box">
             <img src={lockIcon} className="input-icon" />
             <input
+              id="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
@@ -114,7 +116,6 @@ export default function SignUp(){
           </div>
         </div>
 
-       
         {password && (
           <div className="password-rules">
             <p className={passwordChecks.length ? "valid" : "invalid"}>
@@ -132,12 +133,13 @@ export default function SignUp(){
           </div>
         )}
 
-        
+        {/* CONFIRM PASSWORD */}
         <div className="input-group">
-          <label>Confirm Password</label>
+          <label htmlFor="confirmPassword">Confirm Password</label>
           <div className="input-box">
             <img src={reloadIcon} className="input-icon" />
             <input
+              id="confirmPassword"
               type={showPassword ? "text" : "password"}
               placeholder="Confirm Password"
               value={confirmPassword}

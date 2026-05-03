@@ -42,16 +42,16 @@ export default function SignIn(){
           <h2>Welcome back</h2>
           <p>Enter your details to access your account</p>
 
-          <label>Email</label>
-          <input
+          <label htmlFor="email">Email</label>
+          <input id="email"
             type="email"
             placeholder="name@example.com"
             value={email}
             onChange={(e)=>setEmail(e.target.value)}
           />
 
-          <label>Password</label>
-          <input
+          <label htmlFor="password">Password</label>
+          <input id="password"
             type="password"
             placeholder="Enter your password"
             value={password}
