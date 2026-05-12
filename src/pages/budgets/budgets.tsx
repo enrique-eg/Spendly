@@ -242,7 +242,7 @@ function BudgetsPageInner(){
         {showAddCategory && (
           <div className="modal-overlay" onClick={() => setShowAddCategory(false)}>
             <div className="add-category-modal" onClick={e => e.stopPropagation()}>
-              <h3>Add category budget</h3>
+              <h2>Add category budget</h2>
               <p className="modal-sub-text">Select a category and set a monthly limit</p>
 
               <div className="cat-list">

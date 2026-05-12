@@ -131,7 +131,7 @@ export default function BankConnectModal({ userId, onClose, onConnected }: Props
         {step === "select" && (
           <>
             <p className="step-label">Step 1 of 3</p>
-            <h3>Connect your bank</h3>
+            <h2>Connect your bank</h2>
             <p className="modal-sub">Select your bank to get started</p>
             {MOCK_BANKS.map(bank => (
               <div key={bank.id} className="bank-option" onClick={() => { setSelectedBank(bank); setStep("login") }}>
@@ -156,7 +156,7 @@ export default function BankConnectModal({ userId, onClose, onConnected }: Props
               <div className="bank-logo-dot" style={{ background: selectedBank?.color }}>
                 {selectedBank?.label.slice(0, 3).toUpperCase()}
               </div>
-              <h3>{selectedBank?.label}</h3>
+              <h2>{selectedBank?.label}</h2>
             </div>
             <p className="modal-sub">Enter your online banking credentials</p>
             <label className="inp-label">Username / ID</label>

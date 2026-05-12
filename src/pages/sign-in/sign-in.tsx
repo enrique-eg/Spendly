@@ -39,7 +39,7 @@ export default function SignIn(){
             <img src={walletIcon} alt="logo" />
           </div>
 
-          <h2>Welcome back</h2>
+          <h1>Welcome back</h1>
           <p>Enter your details to access your account</p>
 
           <label htmlFor="email">Email</label>

@@ -39,9 +39,9 @@ export default function WeeklyChart({ transactions }: WeeklyChartProps) {
 
   return (
     <div>
-      <h3 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>
+      <h2 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>
         Last 7 days
-      </h3>
+      </h2>
       <div className="weekly-chart-container">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 

@@ -83,7 +83,7 @@
 
 .chart-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
@@ -96,6 +96,12 @@
   flex-direction: column;
   gap: 0.5rem;
   text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.summary-item.total {
+  grid-column: 1 / -1;
 }
 
 .summary-item.total {

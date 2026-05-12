@@ -170,7 +170,7 @@ Reglas:
                         <div className="spendly-empty-icon">
                             <span className="material-symbols-outlined">auto_awesome</span>
                         </div>
-                        <h3 className="spendly-empty-title">¡Hola! 👋</h3>
+                        <h2 className="spendly-empty-title">¡Hola! 👋</h2>
                         <p className="spendly-empty-description">
                             Soy tu asistente financiero. Puedo ayudarte con presupuestos, ahorro y consejos financieros.
                         </p>

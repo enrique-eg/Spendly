@@ -63,7 +63,7 @@ export default function SignUp(){
 
       <form className="register-card" onSubmit={handleRegister}>
 
-        <h2>Join Spendly</h2>
+        <h1>Join Spendly</h1>
         <p>Start your journey to better financial health today.</p>
 
         {/* FULL NAME */}

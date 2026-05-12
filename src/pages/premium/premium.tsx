@@ -23,8 +23,8 @@ export default function Subscription(){
           className={`plan ${selected === "free" ? "active" : ""}`}
           onClick={()=>setSelected("free")}
         >
-          <h3>Free</h3>
-          <h2>$0</h2>
+          <h2>Free</h2>
+          <h3>$0</h3>
           <p>Basic features</p>
 
           <ul>
@@ -45,8 +45,8 @@ export default function Subscription(){
           className={`plan featured ${selected === "monthly" ? "active" : ""}`}
           onClick={()=>setSelected("monthly")}
         >
-          <h3>Monthly</h3>
-          <h2>$15.99</h2>
+          <h2>Monthly</h2>
+          <h3>$15.99</h3>
           <p className="popular">Most popular</p>
 
           <ul>
@@ -76,8 +76,8 @@ export default function Subscription(){
           className={`plan ${selected === "yearly" ? "active" : ""}`}
           onClick={()=>setSelected("yearly")}
         >
-          <h3>Yearly</h3>
-          <h2>$99.99</h2>
+          <h2>Yearly</h2>
+          <h3>$99.99</h3>
           <p>Best value</p>
 
           <ul>
