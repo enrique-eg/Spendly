@@ -48,18 +48,23 @@
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 3.5rem;
 }
 
 .settings-close:hover {
   color: var(--text-primary);
 }
+
 .settings-close::after {
   content: "close";
-  font-size: 0.925rem;
-  opacity: 1;
-  position: absolute;
-  top: 5.9%;
-  right: 5%;
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.8;
+  white-space: nowrap;
 }
 
 .settings-content {

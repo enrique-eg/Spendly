@@ -67,22 +67,30 @@
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
-  font-size: 1.5rem;
   padding: 0.5rem;
-  padding-left: 10.5px;
-  border-radius: 50%;
-  transition: color 0.2s;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 3.5rem;
 }
 .settings-btn:hover {
-  color: var(--text-primary);
+  color: var(--primary);
+  background: rgba(23, 207, 84, 0.1);
+}
+.settings-btn .material-symbols-outlined {
+  font-size: 1.3rem;
+  font-weight: 500;
 }
 .settings-btn::after {
   content: "settings";
-  font-size: 0.925rem;
-  opacity: 1;
-  position: absolute;
-  top: 64%;
-  right: 0.4%;
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.8;
+  white-space: nowrap;
 }
 
 .profile-btn {
@@ -90,25 +98,33 @@
   border: none;
   cursor: pointer;
   color: var(--text-secondary);
-  font-size: 1.2rem;
   padding: 0.5rem;
-  border-radius: 50%;
+  border-radius: 8px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.25rem;
+  min-width: 3.5rem;
+  transition: all 0.2s;
 }
 
 .profile-btn:hover {
-  color: var(--text-primary);
+  color: var(--primary);
+  background: rgba(23, 207, 84, 0.1);
+}
+
+.profile-btn .material-symbols-outlined {
+  font-size: 1.3rem;
+  font-weight: 500;
 }
 
 .profile-btn::after {
   content: "profile";
-  font-size: 0.925rem;
-  opacity: 1;
-  position: absolute;
-  top: 64%;
-  right: 3.4%;
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.8;
+  white-space: nowrap;
 }
 .home-main {
   flex: 1;

@@ -2,6 +2,122 @@
    Subscriptions page - mobile-first, mirrors home-page style
    ============================================================ */
 
+:root {
+  --primary: #17cf54;
+  --bg-color: #050805;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --danger: #ef4444;
+}
+
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  position: sticky;
+  top: 0;
+  background: rgba(17, 33, 22, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  border-bottom: 1px solid rgba(23, 207, 84, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-circle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(23, 207, 84, 0.1);
+  border: 1px solid rgba(23, 207, 84, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-circle .material-symbols-outlined {
+  color: var(--primary);
+  font-size: 1.5rem;
+}
+
+.header-left h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 3.5rem;
+}
+.settings-btn:hover {
+  color: var(--primary);
+  background: rgba(23, 207, 84, 0.1);
+}
+.settings-btn .material-symbols-outlined {
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+.settings-btn::after {
+  content: "settings";
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 3.5rem;
+  transition: all 0.2s;
+}
+
+.profile-btn:hover {
+  color: var(--primary);
+  background: rgba(23, 207, 84, 0.1);
+}
+
+.profile-btn .material-symbols-outlined {
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.profile-btn::after {
+  content: "profile";
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
 .subscriptions-page {
   padding: 0.75rem 1rem 8rem;
   color: var(--text-primary);

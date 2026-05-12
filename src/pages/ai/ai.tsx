@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './ai.css';
 import BottomNav from '../../components/bottomNav/BottomNav';
 import SettingsSidebar from "../../components/settings-sidebar/SettingsSidebar";
+import { useNavigate } from 'react-router-dom';
 import {useAuth} from "../../context/AuthContext.tsx";
 
 interface Message {
@@ -23,6 +24,7 @@ export default function SpendlyAIAssistant() {
     const [initialized, setInitialized] = useState(false);
     const chatBoxRef = useRef<HTMLDivElement>(null);
     const [showSettings, setShowSettings] = useState(false)
+    const navigate = useNavigate()
     const { user } = useAuth()
 
     // Inicializar el chat con Gemini
@@ -149,10 +151,20 @@ Reglas:
         <div className="spendly-container dark">
             {/* Header */}
             <header className="spendly-header">
-                <h1 className="header-title">Spendly Assistant</h1>
-                <button className="header-settings-btn" onClick={() => setShowSettings(true)}>
-                    <span className="material-symbols-outlined">settings</span>
-                </button>
+                <div className="header-left">
+                    <div className="logo-circle">
+                        <span className="material-symbols-outlined">wallet</span>
+                    </div>
+                    <h1 className="header-title">Spendly</h1>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button className="header-icon-btn profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
+                        <span className="material-symbols-outlined">person</span>
+                    </button>
+                    <button className="header-icon-btn settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
+                        <span className="material-symbols-outlined">settings</span>
+                    </button>
+                </div>
             </header>
 
             {/* Settings Sidebar */}

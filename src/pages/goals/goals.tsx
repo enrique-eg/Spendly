@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import type { SavingGoal } from '../../models/SavingGoal'
 import { getGoals, createGoal, updateGoal, deleteGoal } from '../../services/goalsService'
@@ -10,6 +11,7 @@ import './goals.css'
 
 export default function GoalsPage(){
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [showSettings, setShowSettings] = useState(false)
   const [goals, setGoals] = useState<SavingGoal[]>([])
   const [accounts, setAccounts] = useState<any[]>([])
@@ -161,13 +163,18 @@ export default function GoalsPage(){
       <header className="home-header">
         <div className="header-left">
           <div className="logo-circle">
-            <span className="material-symbols-outlined">savings</span>
+            <span className="material-symbols-outlined">wallet</span>
           </div>
-          <h1>Saving Goals</h1>
+          <h1>Spendly</h1>
         </div>
-        <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
-          <span className="material-symbols-outlined">settings</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
+            <span className="material-symbols-outlined">person</span>
+          </button>
+          <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
+            <span className="material-symbols-outlined">settings</span>
+          </button>
+        </div>
       </header>
 
       <div className="goals-page">

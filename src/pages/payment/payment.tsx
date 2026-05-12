@@ -124,20 +124,18 @@ export default function Payment(){
       <header className="home-header">
         <div className="header-left">
           <div className="logo-circle">
-            <span className="material-symbols-outlined">payments</span>
+            <span className="material-symbols-outlined">wallet</span>
           </div>
-          <div>
-            <h1>Payment Process</h1>
-            <div className="header-sub">Complete your subscription</div>
-          </div>
+          <h1>Spendly</h1>
         </div>
-
-        <button 
-          className="settings-btn"
-          onClick={() => navigate(-1)}
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
+            <span className="material-symbols-outlined">person</span>
+          </button>
+          <button className="settings-btn" onClick={() => navigate(-1)} aria-label="Atrás">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+        </div>
       </header>
 
       <div className="payment-page">

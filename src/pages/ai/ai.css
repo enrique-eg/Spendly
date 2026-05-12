@@ -1,14 +1,14 @@
 :root {
     --primary: #17cf54;
-    --background-light: #112116;
-    --background-dark: #112116;
-    --surface-light: #112116;
-    --surface-dark: #1a1f1e;
-    --border-light: #112119;
-    --border-dark: #112116;
+    --background-light: #050805;
+    --background-dark: #050805;
+    --surface-light: #050805;
+    --surface-dark: #0a0e0c;
+    --border-light: #050805;
+    --border-dark: #050805;
     --text-primary: #ffffff;
     --text-secondary: #64748b;
-    --text-light: #112116;
+    --text-light: #050805;
 }
 
 * {
@@ -33,12 +33,11 @@ body.dark {
 .spendly-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 100dvh;
     width: 100%;
     margin: 0 auto;
     background-color: var(--background-light);
-    padding: 1rem 0rem;
-    padding-bottom: 5rem;
+    padding: 0;
     overflow: hidden;
 }
 
@@ -47,69 +46,116 @@ body.dark .spendly-container {
     border-color: rgba(23, 207, 84, 0.1);
 }
 
+/* Input Area and Suggestions Spacing */
+.spendly-suggestions,
+.spendly-input-area {
+    flex-shrink: 0;
+    z-index: 5;
+}
+
 /* Header */
 .spendly-header {
     display: flex;
     align-items: center;
-    background-color: var(--background-light);
+    justify-content: space-between;
+    background: rgba(17, 33, 22, 0.8);
+    backdrop-filter: blur(10px);
     padding: 1rem;
-    border-bottom: 1px solid rgba(23,207,84,0.2);
-    gap: 1.5rem;
+    gap: 1rem;
     flex-shrink: 0;
     z-index: 10;
     position: sticky;
     top: 0;
+    min-height: 3rem;
 }
 
 body.dark .spendly-header {
     background-color: var(--background-dark);
     border-bottom-color: rgba(23, 207, 84, 0.1);
 }
-.header-back-btn,
-.header-settings-btn {
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(23, 207, 84, 0.1);
+    border: 1px solid rgba(23, 207, 84, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-circle .material-symbols-outlined {
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+.spendly-header .header-title {
+    flex: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+body.dark .spendly-header .header-title {
+    color: var(--text-primary);
+}
+
+.header-icon-btn {
     background: none;
     border: none;
     cursor: pointer;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #5c6a87;
-    transition: color 0.2s ease;
-    border-radius: 0.5rem;
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    gap: 0.25rem;
+    min-width: 3.5rem;
 }
 
-
-.header-back-btn:hover,
-.header-settings-btn:hover {
-    color: #ffffff;
+.header-icon-btn:hover {
+    color: var(--primary);
+    background: rgba(23, 207, 84, 0.1);
 }
-.header-settings-btn::after {
+
+.header-icon-btn .material-symbols-outlined {
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
+.profile-btn::after {
+    content: "profile";
+    font-size: 0.65rem;
+    font-weight: 500;
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
+.settings-btn::after {
     content: "settings";
-    font-size: 0.925rem;
-    opacity: 1;
-    position: absolute;
-    top: 70%;
-    right: 0.1%;
-}
-
-
-.header-title {
-    flex: 1;
-    text-align: center;
-    font-size: 1.125rem;
-    font-weight: 700;
-    line-height: 1.25;
-    color: var(--text-primary);
-}
-
-body.dark .header-title {
-    color: var(--text-light);
+    font-size: 0.65rem;
+    font-weight: 500;
+    opacity: 0.8;
+    white-space: nowrap;
 }
 
 /* Chat Area */
 .spendly-chat-area {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -121,6 +167,7 @@ body.dark .header-title {
     );
     scroll-behavior: smooth;
     min-height: 0;
+    -webkit-overflow-scrolling: touch;
 }
 
 body.dark .spendly-chat-area {
@@ -371,6 +418,7 @@ body.dark .message-timestamp {
     gap: 0.5rem;
     overflow-x: auto;
     padding: 0.5rem 1rem;
+    padding-bottom: 0.75rem;
     -ms-overflow-style: none;
     scrollbar-width: none;
     flex-shrink: 0;
@@ -406,9 +454,9 @@ body.dark .suggestion-btn {
 /* Input Area */
 .spendly-input-area {
     padding: 0.75rem 1rem;
+    padding-bottom: 5.5rem;
     background-color: var(--background-light);
     border-top: 1px solid var(--border-light);
-    border-bottom: 1px solid var(--border-light);
     flex-shrink: 0;
 }
 

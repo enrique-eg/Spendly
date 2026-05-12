@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import type { Subscription } from '../../models/Subscription'
 import { getSubscriptions, createSubscription, updateSubscription, deleteSubscription } from '../../services/subscriptionsService'
@@ -12,6 +13,7 @@ import './subscriptions.css'
 
 export default function SubscriptionsPage(){
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [showSettings, setShowSettings] = useState(false)
   const [defaultCurrency, setDefaultCurrency] = useState('USD')
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
@@ -226,9 +228,14 @@ export default function SubscriptionsPage(){
           </div>
           <h1>Spendly</h1>
         </div>
-        <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
-          <span className="material-symbols-outlined">settings</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
+            <span className="material-symbols-outlined">person</span>
+          </button>
+          <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
+            <span className="material-symbols-outlined">settings</span>
+          </button>
+        </div>
       </header>
 
       <div className="subscriptions-page">

@@ -202,7 +202,6 @@ export default function Profile(){
 
       <div className="profile-header">
         <h2>Account</h2>
-        <span className="gear">⚙️</span>
       </div>
 
       <div className="profile-user">

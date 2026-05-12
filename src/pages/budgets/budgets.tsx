@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import { getAccountsByUser } from '../../services/accountsService'
 import { getBudgets, createBudget, updateBudget, deleteBudget } from '../../services/budgetsService'
@@ -26,6 +27,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 function BudgetsPageInner(){
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [showSettings, setShowSettings] = useState(false)
   const [defaultCurrency, setDefaultCurrency] = useState('USD')
   const [accounts, setAccounts] = useState<any[]>([])
@@ -159,15 +161,17 @@ function BudgetsPageInner(){
     <>
       <header className="home-header">
         <div className="header-left">
-          <div className="logo-circle"><span className="material-symbols-outlined">pie_chart</span></div>
-          <div>
-            <h1>Budgets</h1>
-            <div className="header-sub">Monthly spending limits</div>
-          </div>
+          <div className="logo-circle"><span className="material-symbols-outlined">wallet</span></div>
+          <h1>Spendly</h1>
         </div>
-        <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Open settings">
-          <span className="material-symbols-outlined">settings</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
+            <span className="material-symbols-outlined">person</span>
+          </button>
+          <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
+            <span className="material-symbols-outlined">settings</span>
+          </button>
+        </div>
       </header>
 
       <div className="budgets-page">
