@@ -7,7 +7,7 @@ import {useAuth} from "../../context/AuthContext.tsx";
 
 interface Message {
     id: string;
-    author: 'Usuario' | 'SpendlyGPT';
+    author: 'User' | 'SpendlyGPT';
     text: string;
     timestamp: Date;
 }
@@ -27,7 +27,7 @@ export default function SpendlyAIAssistant() {
     const navigate = useNavigate()
     const { user } = useAuth()
 
-    // Inicializar el chat con Gemini
+    // Initialize chat with Gemini
     useEffect(() => {
         const initializeChat = async () => {
             try {
@@ -35,26 +35,26 @@ export default function SpendlyAIAssistant() {
 
                 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
                 if (!apiKey) {
-                    throw new Error('VITE_GOOGLE_API_KEY no está configurada en las variables de entorno');
+                    throw new Error('VITE_GOOGLE_API_KEY is not configured in environment variables');
                 }
                 const genAI = new GoogleGenerativeAI(apiKey);
 
                 const model = genAI.getGenerativeModel({
                     model: 'gemini-3-flash-preview',
-                    systemInstruction: `Eres un asesor financiero experto para la app 'Spendly'. Tu tono es cercano pero profesional.
+                    systemInstruction: `You are an expert financial advisor for the 'Spendly' app. Your tone is friendly but professional.
           
-Reglas:
-1. Solo respondes preguntas sobre ahorro, presupuestos y economía.
-2. Si te preguntan algo fuera de finanzas, di que no puedes ayudar con eso.
-3. No des consejos de inversión en bolsa o cripto específicos.
-4. Sé conciso y útil en tus respuestas.
-5. Puedes hacer preguntas de seguimiento para entender mejor la situación financiera del usuario.`
+Rules:
+1. Only answer questions about savings, budgets, and economics.
+2. If asked about non-finance topics, say you can't help with that.
+3. Don't give specific investment or crypto advice.
+4. Be concise and helpful in your responses.
+5. You can ask follow-up questions to better understand the user's financial situation.`
                 });
 
-                // Crear una sesión de chat
+                // Create a chat session
                 const chat = model.startChat();
 
-                // Wrapper para mantener compatibilidad con la interfaz esperada
+                // Wrapper to maintain compatibility with the expected interface
                 const chatWrapper = {
                     sendMessage: async (input: { message: string }) => {
                         const result = await chat.sendMessage(input.message);
@@ -67,14 +67,14 @@ Reglas:
                 setInitialized(true);
             } catch (error) {
                 console.error('Error initializing chat:', error);
-                alert('Error al inicializar el asistente. Verifica tu conexión a internet.');
+                alert('Error initializing the assistant. Please check your internet connection.');
             }
         };
 
         initializeChat();
     }, []);
 
-    // Auto-scroll hacia abajo cuando hay nuevos mensajes
+    // Auto-scroll down when there are new messages
     useEffect(() => {
         if (chatBoxRef.current) {
             chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
@@ -88,10 +88,10 @@ Reglas:
             return;
         }
 
-        // Agregar mensaje del usuario
+        // Add user message
         const userMessage: Message = {
             id: Date.now().toString(),
-            author: 'Usuario',
+            author: 'User',
             text: mensajeInput,
             timestamp: new Date(),
         };
@@ -101,7 +101,7 @@ Reglas:
         setIsLoading(true);
 
         try {
-            // Enviar mensaje y obtener respuesta
+            // Send message and get response
             const respuesta = await currentChat.sendMessage({
                 message: mensajeInput,
             });
@@ -120,7 +120,7 @@ Reglas:
             const errorMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 author: 'SpendlyGPT',
-                text: 'Disculpa, ocurrió un error al procesar tu mensaje. Por favor, intenta nuevamente.',
+                text: 'Sorry, an error occurred while processing your message. Please try again.',
                 timestamp: new Date(),
             };
 
@@ -142,9 +142,9 @@ Reglas:
     };
 
     const quickSuggestions = [
-        'Cómo crear un presupuesto',
-        'Consejos de ahorro',
-        'Actualizar presupuesto de comida',
+        'How to create a budget',
+        'Saving tips',
+        'Update food budget',
     ];
 
     return (
@@ -158,10 +158,10 @@ Reglas:
                     <h1 className="header-title">Spendly</h1>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="header-icon-btn profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
+                    <button className="header-icon-btn profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Profile">
                         <span className="material-symbols-outlined">person</span>
                     </button>
-                    <button className="header-icon-btn settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
+                    <button className="header-icon-btn settings-btn" onClick={() => setShowSettings(true)} aria-label="Settings">
                         <span className="material-symbols-outlined">settings</span>
                     </button>
                 </div>
@@ -182,40 +182,40 @@ Reglas:
                         <div className="spendly-empty-icon">
                             <span className="material-symbols-outlined">auto_awesome</span>
                         </div>
-                        <h2 className="spendly-empty-title">¡Hola! 👋</h2>
+                        <h2 className="spendly-empty-title">Hello! 👋</h2>
                         <p className="spendly-empty-description">
-                            Soy tu asistente financiero. Puedo ayudarte con presupuestos, ahorro y consejos financieros.
+                            I'm your financial assistant. I can help you with budgets, savings, and financial advice.
                         </p>
                     </div>
                 )}
 
-                {/* Mensajes */}
+                {/* Messages */}
                 {messages.map(message => (
                     <div
                         key={message.id}
                         className={`message-container ${
-                            message.author === 'Usuario'
+                            message.author === 'User'
                                 ? 'user-message'
                                 : 'assistant-message'
                         }`}
                     >
                         <div className={`message-avatar ${
-                            message.author === 'Usuario'
+                            message.author === 'User'
                                 ? 'user-avatar'
                                 : 'assistant-avatar'
                         }`}>
                             <span className="material-symbols-outlined">
-                                {message.author === 'Usuario' ? 'person' : 'auto_awesome'}
+                                {message.author === 'User' ? 'person' : 'auto_awesome'}
                             </span>
                         </div>
                         <div className={`message-bubble ${
-                            message.author === 'Usuario' ? 'user' : 'assistant'
+                            message.author === 'User' ? 'user' : 'assistant'
                         }`}>
                             <p className="message-author">
-                                {message.author === 'Usuario' ? 'You' : 'Spendly Assistant'}
+                                {message.author === 'User' ? 'You' : 'Spendly Assistant'}
                             </p>
                             <div className={`message-text ${
-                                message.author === 'Usuario' ? 'user' : 'assistant'
+                                message.author === 'User' ? 'user' : 'assistant'
                             }`}>
                                 {message.text}
                             </div>

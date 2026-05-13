@@ -30,18 +30,18 @@ export default function SettingsSidebar({ isOpen, onClose, userId, defaultCurren
   const handleCurrencyChange = async (newCurrency: string) => {
     onDefaultCurrencyChange(newCurrency);
     
-    // Actualizar en la base de datos
+    // Update in the database
     const { error } = await updateUserProfile(userId, { default_currency: newCurrency });
     if (error) {
-      console.error('Error al actualizar moneda por defecto:', error);
+      console.error('Error updating default currency:', error);
     }
   };
 
   const handleLogout = async () => {
     const { error } = await logout();
     if (error) {
-      console.error('Error al cerrar sesión:', error);
-      alert('No se pudo cerrar sesión');
+      console.error('Error logging out:', error);
+      alert('Could not log out');
       return;
     }
     onClose();
@@ -52,15 +52,15 @@ export default function SettingsSidebar({ isOpen, onClose, userId, defaultCurren
       {isOpen && <div className="settings-overlay" onClick={onClose} />}
       <div className={`settings-sidebar ${isOpen ? 'open' : ''}`}>
         <div className="settings-header">
-          <h2>Configuración</h2>
-          <button className="settings-close" onClick={onClose} aria-label="Cerrar">✕</button>
+          <h2>Settings</h2>
+          <button className="settings-close" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         <div className="settings-content">
           <div className="settings-group">
-            <label>Moneda por Defecto</label>
+            <label>Default Currency</label>
             {loading ? (
-              <p>Cargando monedas...</p>
+              <p>Loading currencies...</p>
             ) : (
               <select
                 value={defaultCurrency}
@@ -75,7 +75,7 @@ export default function SettingsSidebar({ isOpen, onClose, userId, defaultCurren
             )}
           </div>
           <div style={{ marginTop: '1.5rem' }}>
-            <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+            <button className="logout-btn" onClick={handleLogout}>Log out</button>
           </div>
         </div>
       </div>

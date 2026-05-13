@@ -206,10 +206,10 @@ export default function HomePage() {
 
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) { alert('Por favor, inicia sesión'); return; }
-    if (!formData.description || !formData.amount) { alert('Por favor, completa los campos requeridos'); return; }
+    if (!user) { alert('Please log in'); return; }
+    if (!formData.description || !formData.amount) { alert('Please complete the required fields'); return; }
     if ((formData.type === 'expense' || formData.type === 'income') && !formData.account_id) {
-      alert('Por favor, selecciona una cuenta'); return;
+      alert('Please select an account'); return;
     }
 
     const amount = parseFloat(formData.amount);
@@ -227,8 +227,8 @@ export default function HomePage() {
 
     const { data, error: createError } = await createTransaction(newTransaction);
     if (createError) {
-      console.error('Error detallado:', createError);
-      alert('Error al crear la transacción: ' + (createError as any).message);
+      console.error('Detailed error:', createError);
+      alert('Error creating transaction: ' + (createError as any).message);
     } else {
       setTransactions([data as Transaction, ...transactions]);
       setShowModal(false);
@@ -258,8 +258,8 @@ export default function HomePage() {
 
     const { data, error } = await updateTransaction(editFormData.id, updated);
     if (error) {
-      console.error('Error al actualizar:', error);
-      alert('Error al actualizar la transacción');
+      console.error('Update error:', error);
+      alert('Error updating transaction');
     } else {
       setTransactions(transactions.map(t => (t.id === editFormData.id ? (data as Transaction) : t)));
       setShowEditModal(false);
@@ -271,8 +271,8 @@ export default function HomePage() {
     if (!deleteTargetId) return;
     const { error } = await deleteTransaction(deleteTargetId);
     if (error) {
-      console.error('Error eliminando:', error);
-      alert('Error al eliminar la transacción');
+      console.error('Delete error:', error);
+      alert('Error deleting transaction');
     } else {
       setTransactions(transactions.filter(t => t.id !== deleteTargetId));
       setShowDeleteModal(false);
@@ -281,7 +281,7 @@ export default function HomePage() {
   };
 
   if (!user) {
-    return <div className="home-page"><p>Por favor, inicia sesión</p></div>;
+    return <div className="home-page"><p>Please log in</p></div>;
   }
 
 
@@ -349,9 +349,9 @@ export default function HomePage() {
 
         <section className="transactions-section">
           <div className="section-header"><h2>Transactions</h2></div>
-          {loading && <p>Cargando...</p>}
+          {loading && <p>Loading...</p>}
           {error && <p style={{ color: 'red' }}>{error}</p>}
-          {!loading && transactions.length === 0 && <p>Sin transacciones</p>}
+          {!loading && transactions.length === 0 && <p>No transactions</p>}
           <div className="transactions-list">
             {transactions.map((transaction) => (
               <div key={transaction.id} className="transaction-card">
@@ -359,7 +359,7 @@ export default function HomePage() {
                   <span className="material-symbols-outlined">receipt</span>
                 </div>
                 <div className="transaction-info">
-                  <p className="transaction-name">{(transaction.description || 'Transacción').replace(/\s*subscription:[^\s]+$/, '')}</p>
+                  <p className="transaction-name">{(transaction.description || 'Transaction').replace(/\s*subscription:[^\s]+$/, '')}</p>
                   <p className="transaction-meta">{currencySymbols[transaction.currency] || transaction.currency} {transaction.currency} • {formatDateWithoutTimezone(transaction.transaction_date)}</p>
                   <p className={`transaction-amount ${transaction.type}`}>
                     {transaction.type === 'income' ? '+' : '-'}{currencySymbols[transaction.currency] || transaction.currency}{transaction.amount.toFixed(2)}
@@ -380,14 +380,14 @@ export default function HomePage() {
                       });
                       setShowEditModal(true);
                     }}
-                    aria-label="Editar"
+                    aria-label="Edit"
                   >
                     <span className="material-symbols-outlined">edit</span>
                   </button>
                   <button
                     className="action-btn delete"
                     onClick={() => { setDeleteTargetId(transaction.id || null); setShowDeleteModal(true); }}
-                    aria-label="Eliminar"
+                    aria-label="Delete"
                   >
                     <span className="material-symbols-outlined">delete</span>
                   </button>
@@ -398,47 +398,47 @@ export default function HomePage() {
         </section>
       </main>
 
-      <button className="fab" onClick={() => setShowModal(true)} aria-label="Agregar transacción">
+      <button className="fab" onClick={() => setShowModal(true)} aria-label="Add transaction">
         <span className="material-symbols-outlined">add</span>
       </button>
 
-      {/* MODAL CREAR */}
+      {/* CREATE MODAL */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Nueva Transacción</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Cerrar">✕</button>
+              <h2>New Transaction</h2>
+              <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Close">✕</button>
             </div>
             <form onSubmit={handleAddTransaction} className="modal-form">
               <div className="form-group">
-                <label>Descripción</label>
-                <input type="text" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Ej: Café, Compra..." required />
+                <label>Description</label>
+                <input type="text" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="E.g.: Coffee, Shopping..." required />
               </div>
               <div className="form-group">
-                <label>Importe</label>
+                <label>Amount</label>
                 <input type="number" step="0.01" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} placeholder="0.00" required />
               </div>
               <div className="form-group">
-                <label>Tipo</label>
+                <label>Type</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
                 >
-                  <option value="expense">Gasto</option>
-                  <option value="income">Ingreso</option>
-                  <option value="transfer">Transferencia</option>
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
+                  <option value="transfer">Transfer</option>
                 </select>
               </div>
               {(formData.type === 'expense' || formData.type === 'income') && (
                 <>
                   <div className="form-group">
-                    <label>Categoría</label>
+                    <label>Category</label>
                     <select
                       value={formData.category_id}
                       onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                     >
-                      <option value="">Selecciona una categoría</option>
+                      <option value="">Select a category</option>
                       {getCategoriesByType(formData.type).map((category) => (
                         <option key={category.id} value={category.id}>
                           {category.name}
@@ -448,13 +448,13 @@ export default function HomePage() {
                   </div>
 
                   <div className="form-group">
-                    <label>Cuenta</label>
+                    <label>Account</label>
                     <select
                       value={formData.account_id}
                       onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
                       required
                     >
-                      <option value="">Selecciona una cuenta</option>
+                      <option value="">Select an account</option>
                       {accounts.map((account) => (
                         <option key={account.id} value={account.id}>
                           {account.name || account.id}
@@ -465,61 +465,61 @@ export default function HomePage() {
                 </>
               )}
               <div className="form-group">
-                <label>Moneda</label>
+                <label>Currency</label>
                 <select value={formData.currency} onChange={(e) => setFormData({ ...formData, currency: e.target.value })} required>
-                  <option value="">Selecciona una moneda</option>
+                  <option value="">Select a currency</option>
                   {currencies.map((currency) => (
                     <option key={currency.code} value={currency.code}>{currency.name} ({currency.code})</option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Fecha</label>
+                <label>Date</label>
                 <input type="date" value={formData.transaction_date} onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })} required />
               </div>
-              <button type="submit" className="submit-btn">Crear</button>
+              <button type="submit" className="submit-btn">Create</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL EDITAR */}
+      {/* EDIT MODAL */}
       {showEditModal && (
         <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Editar Transacción</h2>
-              <button className="modal-close" onClick={() => setShowEditModal(false)} aria-label="Cerrar">✕</button>
+              <h2>Edit Transaction</h2>
+              <button className="modal-close" onClick={() => setShowEditModal(false)} aria-label="Close">✕</button>
             </div>
             <form onSubmit={handleUpdateTransaction} className="modal-form">
               <div className="form-group">
-                <label>Descripción</label>
-                <input type="text" value={editFormData.description || ''} onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })} placeholder="Ej: Café, Compra..." required />
+                <label>Description</label>
+                <input type="text" value={editFormData.description || ''} onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })} placeholder="E.g.: Coffee, Shopping..." required />
               </div>
               <div className="form-group">
-                <label>Importe</label>
+                <label>Amount</label>
                 <input type="number" step="0.01" value={editFormData.amount || ''} onChange={(e) => setEditFormData({ ...editFormData, amount: e.target.value })} placeholder="0.00" required />
               </div>
               <div className="form-group">
-                <label>Tipo</label>
+                <label>Type</label>
                 <select
                   value={editFormData.type || 'expense'}
                   onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
                 >
-                  <option value="expense">Gasto</option>
-                  <option value="income">Ingreso</option>
-                  <option value="transfer">Transferencia</option>
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
+                  <option value="transfer">Transfer</option>
                 </select>
               </div>
               {(editFormData.type === 'expense' || editFormData.type === 'income') && (
                 <>
                   <div className="form-group">
-                    <label>Categoría</label>
+                    <label>Category</label>
                     <select
                       value={editFormData.category_id || ''}
                       onChange={(e) => setEditFormData({ ...editFormData, category_id: e.target.value })}
                     >
-                      <option value="">Selecciona una categoría</option>
+                      <option value="">Select a category</option>
                       {getCategoriesByType(editFormData.type || 'expense').map((category) => (
                         <option key={category.id} value={category.id}>
                           {category.name}
@@ -529,13 +529,13 @@ export default function HomePage() {
                   </div>
 
                   <div className="form-group">
-                    <label>Cuenta</label>
+                    <label>Account</label>
                     <select
                       value={editFormData.account_id || ''}
                       onChange={(e) => setEditFormData({ ...editFormData, account_id: e.target.value })}
                       required
                     >
-                      <option value="">Selecciona una cuenta</option>
+                      <option value="">Select an account</option>
                       {accounts.map((account) => (
                         <option key={account.id} value={account.id}>
                           {account.name || account.id}
@@ -546,37 +546,37 @@ export default function HomePage() {
                 </>
               )}
               <div className="form-group">
-                <label>Moneda</label>
+                <label>Currency</label>
                 <select value={editFormData.currency || ''} onChange={(e) => setEditFormData({ ...editFormData, currency: e.target.value })} required>
-                  <option value="">Selecciona una moneda</option>
+                  <option value="">Select a currency</option>
                   {currencies.map((currency) => (
                     <option key={currency.code} value={currency.code}>{currency.name} ({currency.code})</option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Fecha</label>
+                <label>Date</label>
                 <input type="date" value={editFormData.transaction_date || new Date().toISOString().split('T')[0]} onChange={(e) => setEditFormData({ ...editFormData, transaction_date: e.target.value })} required />
               </div>
-              <button type="submit" className="submit-btn">Guardar</button>
+              <button type="submit" className="submit-btn">Save</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL ELIMINAR */}
+      {/* DELETE MODAL */}
       {showDeleteModal && (
         <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Eliminar Transacción</h2>
+              <h2>Delete Transaction</h2>
               <button className="modal-close" onClick={() => setShowDeleteModal(false)}>✕</button>
             </div>
             <div className="modal-form">
-              <p>¿Estás seguro? Haz clic en "Eliminar" para confirmar la eliminación.</p>
+              <p>Are you sure? Click "Delete" to confirm the deletion.</p>
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                <button className="submit-btn" onClick={() => setShowDeleteModal(false)}>Cancelar</button>
-                <button className="submit-btn danger" onClick={async (e) => { e.preventDefault(); await handleConfirmDelete(); }}>Eliminar</button>
+                <button className="submit-btn" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                <button className="submit-btn danger" onClick={async (e) => { e.preventDefault(); await handleConfirmDelete(); }}>Delete</button>
               </div>
             </div>
           </div>
