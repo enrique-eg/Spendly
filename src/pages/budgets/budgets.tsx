@@ -3,8 +3,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import SettingsSidebar from '../../components/settings-sidebar/SettingsSidebar'
 import { getAccountsByUser } from '../../services/accountsService'
-import { getBudgets, createBudget, updateBudget, deleteBudget } from '../../services/budgetsService'
-import { getTransactionsByAccountInRange, getTransactionsByUser } from '../../services/transactionsService'
+import { getBudgets, createBudget, updateBudget, deleteBudget, getBudgetSpent } from '../../services/budgetsService'
+import { getTransactionsByAccountInRange } from '../../services/transactionsService'
 import { getCategories } from '../../services/categoriesService'
 import { getUserProfile } from '../../services/profilesService'
 import { getCurrencySymbol } from '../../utils/currencySymbols'
@@ -66,7 +66,7 @@ function BudgetsPageInner(){
       const end = new Date(today.getFullYear(), today.getMonth()+1, 0).toISOString().split('T')[0]
       const { data: txs, error } = await getTransactionsByAccountInRange(accountId, start, end)
       if (error) { console.error(error); return 0 }
-      return (txs || []).reduce((sum: number, t: any) => sum + Number(t.amount || 0), 0)
+      return (txs || []).reduce((sum: number, t: any) => sum + Number(t.amount_converted || t.amount || 0), 0)
     } catch (err) {
       console.error(err)
       return 0
@@ -76,18 +76,18 @@ function BudgetsPageInner(){
   const getSpentForCategory = async (categoryId: string) => {
     try {
       const today = new Date()
-      const start = new Date(today.getFullYear(), today.getMonth(), 1)
-      const end = new Date(today.getFullYear(), today.getMonth()+1, 0)
-      const { data: txs } = await getTransactionsByUser(user!.id)
-      return (txs || [])
-        .filter((t: any) => {
-          const d = new Date(t.transaction_date)
-          return t.category_id === categoryId &&
-            t.type === 'expense' &&
-            d >= start &&
-            d <= end
-        })
-        .reduce((sum: number, t: any) => sum + Number(t.amount || 0), 0)
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+      const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      
+      const startStr = monthStart.toISOString().split('T')[0]
+      const endStr = monthEnd.toISOString().split('T')[0]
+      
+      const { data: spent, error } = await getBudgetSpent(categoryId, startStr, endStr)
+      if (error) {
+        console.error('Error getting budget spent:', error)
+        return 0
+      }
+      return spent || 0
     } catch (err) {
       console.error(err)
       return 0
@@ -151,9 +151,9 @@ function BudgetsPageInner(){
   }
 
   const handleRemove = async (id: string) => {
-    if (!confirm('Eliminar límite?')) return
+    if (!confirm('Delete limit?')) return
     const { error } = await deleteBudget(id)
-    if (error) { alert('Error eliminando'); return }
+    if (error) { alert('Error deleting'); return }
     setBudgets(budgets.filter(b => b.id !== id))
   }
 
@@ -165,10 +165,10 @@ function BudgetsPageInner(){
           <h1>Spendly</h1>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Perfil">
+          <button className="profile-btn" onClick={() => navigate('/personal-profile')} aria-label="Profile">
             <span className="material-symbols-outlined">person</span>
           </button>
-          <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Configuración">
+          <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Settings">
             <span className="material-symbols-outlined">settings</span>
           </button>
         </div>
@@ -176,7 +176,7 @@ function BudgetsPageInner(){
 
       <div className="budgets-page">
         <main className="budgets-main" style={{ paddingBottom: '6rem' }}>
-          {loading && <p>Cargando...</p>}
+          {loading && <p>Loading...</p>}
 
           {/* CUENTAS */}
           {!loading && accounts.length > 0 && (
@@ -334,7 +334,7 @@ function AccountBudgetCard({ account, budget, getSpent, onSave, onRemove, curren
     }
     load()
     return () => { mounted = false }
-  }, [getSpent])
+  }, [account.id])
 
   const numericLimit = Number(budget?.limit_amount ?? limit) || 0
   const pct = numericLimit > 0 ? Math.min(100, Math.round((spent / numericLimit) * 100)) : 0
@@ -389,7 +389,7 @@ function CategoryBudgetCard({ category, budget, getSpent, onSave, onRemove, curr
     }
     load()
     return () => { mounted = false }
-  }, [getSpent])
+  }, [category.id])
 
   const numericLimit = Number(budget?.limit_amount ?? limit) || 0
   const pct = numericLimit > 0 ? Math.min(100, Math.round((spent / numericLimit) * 100)) : 0
@@ -474,7 +474,7 @@ class BudgetsErrorBoundary extends React.Component<any, { hasError: boolean; err
     if (this.state.hasError) {
       return (
         <div style={{ padding: '1rem', color: 'var(--text-primary, #fff)' }}>
-          <h2>Algo fue mal en Budgets</h2>
+          <h2>Something went wrong in Budgets</h2>
           <pre style={{ color: '#f88' }}>{String(this.state.error)}</pre>
         </div>
       )

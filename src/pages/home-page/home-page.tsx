@@ -211,6 +211,9 @@ export default function HomePage() {
     if ((formData.type === 'expense' || formData.type === 'income') && !formData.account_id) {
       alert('Please select an account'); return;
     }
+    if ((formData.type === 'expense' || formData.type === 'income') && !formData.category_id) {
+      alert('Please select a category'); return;
+    }
 
     const amount = parseFloat(formData.amount);
     const currency = formData.currency;
@@ -222,7 +225,8 @@ export default function HomePage() {
       currency,
       transaction_date: new Date(formData.transaction_date).toISOString(),
       description: formData.description,
-      ...(formData.type !== 'transfer' && { account_id: formData.account_id })
+      ...(formData.type !== 'transfer' && { account_id: formData.account_id }),
+      ...(formData.category_id && formData.category_id.trim() && { category_id: formData.category_id })
     };
 
     const { data, error: createError } = await createTransaction(newTransaction);
@@ -253,7 +257,8 @@ export default function HomePage() {
       type: editFormData.type,
       currency: editFormData.currency,
       transaction_date: new Date(editFormData.transaction_date).toISOString(),
-      ...(editFormData.type !== 'transfer' && { account_id: editFormData.account_id })
+      ...(editFormData.type !== 'transfer' && { account_id: editFormData.account_id }),
+      ...(editFormData.category_id && editFormData.category_id.trim() && { category_id: editFormData.category_id })
     };
 
     const { data, error } = await updateTransaction(editFormData.id, updated);
